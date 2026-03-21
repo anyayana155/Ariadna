@@ -1,0 +1,33 @@
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #faf7f2;
+    color: #222;
+}
+
+header, footer {
+    padding: 16px 24px;
+    background: #fff;
+    border-bottom: 1px solid #eee;
+}
+
+footer {
+    border-top: 1px solid #eee;
+    border-bottom: none;
+}
+
+main {
+    padding: 40px 24px;
+}
+
+h1 {
+    font-size: 42px;
+    margin-bottom: 12px;
+}
+
+button {
+    padding: 12px 20px;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+}
