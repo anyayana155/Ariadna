@@ -8,7 +8,7 @@ from .models import Profile
 
 def register_view(request):
     if request.user.is_authenticated:
-        return redirect('profile')
+        return redirect('places_placeholder')
 
     if request.method == 'POST':
         form = UserRegisterForm(request.POST)
@@ -19,7 +19,7 @@ def register_view(request):
                 defaults={'display_name': user.first_name or user.username}
             )
             login(request, user)
-            return redirect('profile')
+            return redirect('preferences')
     else:
         form = UserRegisterForm()
 

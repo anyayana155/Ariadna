@@ -1,7 +1,7 @@
 body {
     margin: 0;
     font-family: Arial, sans-serif;
-    background: #faf7f2;
+    background: #f7f3ee;
     color: #222;
 }
 
@@ -16,18 +16,107 @@ footer {
     border-bottom: none;
 }
 
+nav a {
+    text-decoration: none;
+    color: #222;
+    font-weight: bold;
+}
+
 main {
-    padding: 40px 24px;
+    padding: 40px 20px;
 }
 
-h1 {
-    font-size: 42px;
-    margin-bottom: 12px;
+.hero,
+.form-page,
+.placeholder-page {
+    max-width: 900px;
+    margin: 0 auto;
 }
 
-button {
-    padding: 12px 20px;
+.hero-card,
+.form-card {
+    background: #fff;
+    padding: 32px;
+    border-radius: 20px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+}
+
+.hero-kicker {
+    font-size: 18px;
+    margin-bottom: 8px;
+}
+
+.hero h1 {
+    font-size: 52px;
+    margin: 0 0 8px;
+}
+
+.hero-slogan {
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 24px;
+}
+
+.hero-text p {
+    margin-bottom: 14px;
+    line-height: 1.6;
+}
+
+.name-box {
+    margin: 24px 0;
+}
+
+.name-box label,
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+}
+
+.name-box input,
+.form-group select,
+.form-group textarea {
+    width: 100%;
+    padding: 12px 14px;
+    border: 1px solid #ddd;
+    border-radius: 12px;
+    font-size: 16px;
+    box-sizing: border-box;
+}
+
+.hero-actions {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-top: 20px;
+}
+
+.btn {
+    display: inline-block;
+    padding: 12px 18px;
+    border-radius: 12px;
+    text-decoration: none;
     border: none;
-    border-radius: 10px;
     cursor: pointer;
+    font-size: 16px;
+}
+
+.btn-primary {
+    background: #d66b52;
+    color: white;
+}
+
+.btn-secondary {
+    background: #f1ece7;
+    color: #222;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-help {
+    color: #666;
+    line-height: 1.5;
+    margin-bottom: 20px;
 }

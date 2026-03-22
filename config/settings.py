@@ -33,6 +33,7 @@ ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
 INSTALLED_APPS = [
     'apps.core',
     'apps.users',
+    'apps.preferences',
 
     'django.contrib.admin',
     'django.contrib.auth',
@@ -124,7 +125,7 @@ STATIC_ROOT = BASE_DIR / 'staticfiles'
 MEDIA_URL = 'media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
-LOGIN_REDIRECT_URL = 'profile'
+LOGIN_REDIRECT_URL = 'places_placeholder'
 LOGOUT_REDIRECT_URL = 'landing'
 LOGIN_URL = 'login'
 

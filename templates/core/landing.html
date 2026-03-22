@@ -1,17 +1,74 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block title %}Ариадна{% endblock %}
 
 {% block content %}
-<section>
-    <h1>Ариадна</h1>
-    <p>Приведу тебя куда нужно!</p>
+<section class="landing-hero">
+    <div class="landing-copy">
+        <p class="landing-eyebrow">Твой проводник по Бауманке</p>
+        <h1>Ариадна</h1>
+        <p class="landing-tagline">Приведу тебя куда нужно!</p>
+        <div class="landing-description">
+            <p>Привет, я Ари!</p>
+            <p>
+                Проводишь время на Бауманке? Тогда я — твой лучший друг.
+                Я знаю, где в этом районе кофе по-настоящему вкусный, где по выходным живая музыка,
+                а где просто уютно посидеть с друзьями. И да, я в курсе реальных цен и атмосферы заведения.
+            </p>
+            <p>
+                Ты просто говоришь, что любишь, а я подбираю места. Листаешь карточки — я запоминаю твой вкус.
+                Хочешь сходить куда-то сегодня — я предлагаю варианты, которые тебе подойдут.
+            </p>
+            <p>Никаких сюрпризов. Только то, что тебе по душе.</p>
+        </div>
+    </div>
 
-    <p>
-        Привет, я Ари.
-        Проводишь время на Бауманке? Тогда я помогу найти место именно под тебя.
-    </p>
+    <div class="landing-card">
+        <label class="landing-label" for="landing-name">Как тебя зовут?</label>
+        <input
+            id="landing-name"
+            class="landing-input"
+            type="text"
+            name="name"
+            placeholder="Например, Аня"
+            maxlength="100"
+        >
 
-    <button>Поехали!</button>
+        <div class="landing-actions">
+            <a class="button" href="{% url 'register' %}" id="start-button">Поехали</a>
+        </div>
+
+        <div class="landing-auth-links">
+            <a class="button button-secondary" href="{% url 'login' %}">Войти</a>
+            <a class="button button-secondary" href="{% url 'register' %}">Регистрация</a>
+        </div>
+    </div>
 </section>
+
+<script>
+    (function () {
+        const input = document.getElementById('landing-name');
+        const buttons = document.querySelectorAll('#start-button, .landing-auth-links a[href*="register"], .landing-auth-links a[href*="login"]');
+
+        if (!input) {
+            return;
+        }
+
+        const savedName = window.localStorage.getItem('ariadna_name');
+        if (savedName) {
+            input.value = savedName;
+        }
+
+        input.addEventListener('input', function () {
+            window.localStorage.setItem('ariadna_name', input.value.trim());
+        });
+
+        buttons.forEach(function (button) {
+            button.addEventListener('click', function () {
+                window.localStorage.setItem('ariadna_name', input.value.trim());
+            });
+        });
+    }());
+</script>
 {% endblock %}
