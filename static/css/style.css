@@ -120,3 +120,86 @@ main {
     line-height: 1.5;
     margin-bottom: 20px;
 }
+.place-detail-card,
+.swipe-card,
+.place-mini-card {
+    background: #fff;
+    border-radius: 20px;
+    padding: 24px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+}
+
+.place-gallery {
+    display: flex;
+    gap: 12px;
+    overflow-x: auto;
+    margin-bottom: 20px;
+}
+
+.place-gallery img {
+    width: 280px;
+    height: 200px;
+    object-fit: cover;
+    border-radius: 16px;
+}
+
+.place-actions,
+.swipe-actions,
+.extra-actions {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-top: 20px;
+}
+
+.cards-page,
+.place-detail-page,
+.places-list-page {
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.swipe-card {
+    max-width: 650px;
+    margin: 0 auto;
+    transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.swipe-image-wrap img {
+    width: 100%;
+    max-height: 380px;
+    object-fit: cover;
+    border-radius: 16px;
+    margin-bottom: 16px;
+}
+
+.btn-like {
+    background: #d66b52;
+    color: white;
+}
+
+.btn-dislike {
+    background: #2c2c2c;
+    color: white;
+}
+
+.btn-skip {
+    background: #ece7e1;
+    color: #222;
+}
+
+.swipe-left {
+    transform: translateX(-100px) rotate(-10deg);
+    opacity: 0.7;
+}
+
+.swipe-right {
+    transform: translateX(100px) rotate(10deg);
+    opacity: 0.7;
+}
+
+.places-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 16px;
+}

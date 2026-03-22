@@ -2,4 +2,5 @@ from django.apps import AppConfig
 
 
 class SwipesConfig(AppConfig):
-    name = 'swipes'
+    default_auto_field = 'django.db.models.BigAutoField'
+    name = 'apps.swipes'

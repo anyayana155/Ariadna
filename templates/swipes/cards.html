@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Карточки мест{% endblock %}
+
+{% block content %}
+<section class="cards-page">
+    <h1>Подбор мест</h1>
+
+    {% if place %}
+        <div class="swipe-card" id="swipe-card" data-place-id="{{ place.id }}">
+            <div class="swipe-image-wrap">
+                {% with first_image=place.images.first %}
+                    {% if first_image %}
+                        {% if first_image.image %}
+                            <img id="card-image" src="{{ first_image.image.url }}" alt="{{ place.title }}">
+                        {% elif first_image.external_url %}
+                            <img id="card-image" src="{{ first_image.external_url }}" alt="{{ place.title }}">
+                        {% endif %}
+                    {% endif %}
+                {% endwith %}
+            </div>
+
+            <div class="swipe-content">
+                <h2 id="card-title">{{ place.title }}</h2>
+                <p id="card-description">{{ place.short_description }}</p>
+                <p><strong>Адрес:</strong> <span id="card-address">{{ place.address }}</span></p>
+                <p><strong>Средний чек:</strong>
+                    <span id="card-check">
+                        {% if place.average_check %}{{ place.average_check }} ₽{% else %}Не указан{% endif %}
+                    </span>
+                </p>
+            </div>
+
+            <div class="swipe-actions">
+                <button class="btn btn-dislike" data-action="dislike">← Не нравится</button>
+                <button class="btn btn-skip" data-action="skip">Пропустить</button>
+                <a class="btn btn-secondary" id="card-detail-link" href="{% url 'place_detail' place.slug %}">Подробнее</a>
+                <button class="btn btn-like" data-action="like">Нравится →</button>
+            </div>
+
+            <div class="extra-actions">
+                <a href="#" class="btn btn-secondary">Заявка</a>
+                <a href="#" class="btn btn-secondary">Помощь</a>
+            </div>
+        </div>
+    {% else %}
+        <div class="empty-feed">
+            <p>Пока карточки закончились.</p>
+            <a href="{% url 'place_list' %}">Открыть все места</a>
+        </div>
+    {% endif %}
+</section>
+
+<script>
+    const SWIPE_ACTION_URL = "{% url 'swipe_action' %}";
+</script>
+<script src="{% static 'js/cards.js' %}"></script>
+{% endblock %}

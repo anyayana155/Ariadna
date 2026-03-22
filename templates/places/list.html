@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+
+{% block title %}Места{% endblock %}
+
+{% block content %}
+<section class="places-list-page">
+    <h1>Все места</h1>
+
+    {% if places %}
+        <div class="places-grid">
+            {% for place in places %}
+                <article class="place-mini-card">
+                    <h2>{{ place.title }}</h2>
+                    <p>{{ place.short_description }}</p>
+                    <p>{{ place.address }}</p>
+                    <a href="{% url 'place_detail' place.slug %}">Подробнее</a>
+                </article>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p>Пока нет опубликованных мест.</p>
+    {% endif %}
+</section>
+{% endblock %}

@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ place.title }}{% endblock %}
+
+{% block content %}
+<section class="place-detail-page">
+    <div class="place-detail-card">
+        <h1>{{ place.title }}</h1>
+
+        {% if place.images.all %}
+            <div class="place-gallery">
+                {% for image in place.images.all %}
+                    {% if image.image %}
+                        <img src="{{ image.image.url }}" alt="{{ place.title }}">
+                    {% elif image.external_url %}
+                        <img src="{{ image.external_url }}" alt="{{ place.title }}">
+                    {% endif %}
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <p><strong>Категория:</strong> {{ place.get_category_display }}</p>
+        <p><strong>Описание:</strong> {{ place.full_description|default:place.short_description }}</p>
+        <p><strong>Адрес:</strong> {{ place.address }}</p>
+        <p><strong>Метро:</strong> {{ place.metro|default:"Не указано" }}</p>
+        <p><strong>Средний чек:</strong>
+            {% if place.average_check %}{{ place.average_check }} ₽{% else %}Не указан{% endif %}
+        </p>
+        <p><strong>Атмосфера:</strong> {{ place.get_atmosphere_display }}</p>
+
+        {% if place.tags_text %}
+            <p><strong>Теги:</strong> {{ place.tags_text }}</p>
+        {% endif %}
+
+        <div class="place-actions">
+            <a href="#" class="btn btn-primary">Оставить заявку</a>
+            <a href="#" class="btn btn-secondary">Написать в поддержку</a>
+            <a href="{% url 'cards_feed' %}" class="btn btn-secondary">Назад к карточкам</a>
+        </div>
+    </div>
+</section>
+{% endblock %}

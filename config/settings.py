@@ -34,6 +34,8 @@ INSTALLED_APPS = [
     'apps.core',
     'apps.users',
     'apps.preferences',
+    'apps.places.apps.PlacesConfig',
+    'apps.swipes.apps.SwipesConfig',
 
     'django.contrib.admin',
     'django.contrib.auth',
@@ -125,7 +127,7 @@ STATIC_ROOT = BASE_DIR / 'staticfiles'
 MEDIA_URL = 'media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
-LOGIN_REDIRECT_URL = 'places_placeholder'
+LOGIN_REDIRECT_URL = 'cards_feed'
 LOGOUT_REDIRECT_URL = 'landing'
 LOGIN_URL = 'login'
 

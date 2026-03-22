@@ -8,6 +8,9 @@ urlpatterns = [
     path('', include('apps.core.urls')),
     path('users/', include('apps.users.urls')),
     path('preferences/', include('apps.preferences.urls')),
+    path('places/', include('apps.places.urls')),
+    path('cards/', include('apps.swipes.urls')),
+    
 ]
 
 if settings.DEBUG:

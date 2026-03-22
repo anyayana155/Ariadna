@@ -13,7 +13,7 @@ def preference_create_or_update_view(request):
         form = PreferenceProfileForm(request.POST, instance=preference)
         if form.is_valid():
             form.save()
-            return redirect('places_placeholder')
+            return redirect('cards_feed')
     else:
         form = PreferenceProfileForm(instance=preference)
 
