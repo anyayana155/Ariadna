@@ -5,12 +5,14 @@
 {% block content %}
 <h1>Профиль</h1>
 
-<p><strong>Логин:</strong> {{ user.username }}</p>
-<p><strong>Email:</strong> {{ user.email }}</p>
-<p><strong>Имя для отображения:</strong> {{ user.profile.display_name|default:"—" }}</p>
-<p><strong>Телефон:</strong> {{ user.profile.phone|default:"—" }}</p>
+<p><strong>Email:</strong> {{ request.user.email }}</p>
+<p><strong>Имя:</strong> {{ request.user.first_name }}</p>
+<p><strong>Отображаемое имя:</strong> {{ profile.display_name }}</p>
 
-<p>
-    <a href="{% url 'profile_edit' %}">Редактировать профиль</a>
-</p>
+{% if profile.avatar %}
+    <img src="{{ profile.avatar.url }}" alt="avatar" width="150">
+{% endif %}
+
+<p><a href="{% url 'profile_edit' %}">Редактировать профиль</a></p>
+<p><a href="{% url 'logout' %}">Выйти</a></p>
 {% endblock %}
