@@ -5,7 +5,8 @@ body {
     color: #222;
 }
 
-header, footer {
+header,
+footer {
     padding: 16px 24px;
     background: #fff;
     border-bottom: 1px solid #eee;
@@ -28,16 +29,23 @@ main {
 
 .hero,
 .form-page,
-.placeholder-page {
+.placeholder-page,
+.cards-page,
+.place-detail-page,
+.places-list-page {
     max-width: 900px;
     margin: 0 auto;
 }
 
 .hero-card,
-.form-card {
+.form-card,
+.place-detail-card,
+.swipe-card,
+.place-mini-card,
+.empty-feed-static {
     background: #fff;
-    padding: 32px;
     border-radius: 20px;
+    padding: 24px;
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
 }
 
@@ -84,11 +92,20 @@ main {
     box-sizing: border-box;
 }
 
-.hero-actions {
+.hero-actions,
+.place-actions,
+.swipe-actions,
+.extra-actions,
+.gallery-controls {
     display: flex;
     gap: 12px;
     flex-wrap: wrap;
     margin-top: 20px;
+}
+
+.gallery-controls {
+    justify-content: center;
+    margin-top: 12px;
 }
 
 .btn {
@@ -111,68 +128,6 @@ main {
     color: #222;
 }
 
-.form-group {
-    margin-bottom: 20px;
-}
-
-.form-help {
-    color: #666;
-    line-height: 1.5;
-    margin-bottom: 20px;
-}
-.place-detail-card,
-.swipe-card,
-.place-mini-card {
-    background: #fff;
-    border-radius: 20px;
-    padding: 24px;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
-}
-
-.place-gallery {
-    display: flex;
-    gap: 12px;
-    overflow-x: auto;
-    margin-bottom: 20px;
-}
-
-.place-gallery img {
-    width: 280px;
-    height: 200px;
-    object-fit: cover;
-    border-radius: 16px;
-}
-
-.place-actions,
-.swipe-actions,
-.extra-actions {
-    display: flex;
-    gap: 12px;
-    flex-wrap: wrap;
-    margin-top: 20px;
-}
-
-.cards-page,
-.place-detail-page,
-.places-list-page {
-    max-width: 900px;
-    margin: 0 auto;
-}
-
-.swipe-card {
-    max-width: 650px;
-    margin: 0 auto;
-    transition: transform 0.2s ease, opacity 0.2s ease;
-}
-
-.swipe-image-wrap img {
-    width: 100%;
-    max-height: 380px;
-    object-fit: cover;
-    border-radius: 16px;
-    margin-bottom: 16px;
-}
-
 .btn-like {
     background: #d66b52;
     color: white;
@@ -188,18 +143,235 @@ main {
     color: #222;
 }
 
-.swipe-left {
-    transform: translateX(-100px) rotate(-10deg);
-    opacity: 0.7;
+.form-group {
+    margin-bottom: 20px;
 }
 
-.swipe-right {
-    transform: translateX(100px) rotate(10deg);
-    opacity: 0.7;
+.form-help {
+    color: #666;
+    line-height: 1.5;
+    margin-bottom: 20px;
+}
+
+/* ===== Places ===== */
+
+.place-gallery,
+.place-gallery-detail {
+    display: flex;
+    gap: 12px;
+    overflow-x: auto;
+    margin-bottom: 20px;
+}
+
+.place-gallery img {
+    width: 280px;
+    height: 200px;
+    object-fit: cover;
+    border-radius: 16px;
+    flex-shrink: 0;
+}
+
+.place-gallery-detail img {
+    width: 320px;
+    height: 220px;
+    object-fit: contain;
+    background: #f3f3f3;
+    border-radius: 16px;
+    flex-shrink: 0;
 }
 
 .places-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
     gap: 16px;
+}
+
+/* ===== Swipe cards ===== */
+
+.cards-page {
+    min-height: 70vh;
+}
+
+.swipe-card-shell {
+    max-width: 760px;
+    margin: 24px auto 0;
+}
+
+.swipe-card {
+    max-width: 720px;
+    margin: 0 auto;
+    transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.swipe-drag-zone {
+    touch-action: pan-y;
+}
+
+.swipe-gallery {
+    display: grid;
+    grid-template-columns: 48px 1fr 48px;
+    align-items: center;
+    gap: 12px;
+}
+
+.swipe-image-wrap {
+    width: 100%;
+    min-height: 340px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.card-gallery-image {
+    width: 100%;
+    max-height: 440px;
+    object-fit: contain;
+    border-radius: 16px;
+    background: #f3f3f3;
+}
+
+.hidden {
+    display: none !important;
+}
+
+.gallery-arrow {
+    width: 48px;
+    height: 48px;
+    border: none;
+    border-radius: 50%;
+    background: #ece7e1;
+    cursor: pointer;
+    font-size: 28px;
+    line-height: 1;
+}
+
+.full-description-block {
+    margin: 16px 0;
+}
+
+.no-image {
+    width: 100%;
+    min-height: 240px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f3f3f3;
+    border-radius: 16px;
+    color: #666;
+}
+
+.swipe-left {
+    opacity: 0.7;
+}
+
+.swipe-right {
+    opacity: 0.7;
+}
+
+.empty-feed-static {
+    max-width: 640px;
+    margin: 40px auto 0;
+    text-align: center;
+}
+
+/* ===== Modal ===== */
+
+.image-modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.75);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 999;
+}
+
+.image-modal-inner {
+    position: relative;
+    max-width: 90vw;
+    max-height: 90vh;
+}
+
+.image-modal-inner img {
+    max-width: 90vw;
+    max-height: 90vh;
+    object-fit: contain;
+    border-radius: 16px;
+    background: #fff;
+}
+
+.modal-close {
+    position: absolute;
+    top: -12px;
+    right: -12px;
+    width: 36px;
+    height: 36px;
+    border: none;
+    border-radius: 50%;
+    background: white;
+    font-size: 24px;
+    cursor: pointer;
+}
+
+/* ===== Mobile ===== */
+
+@media (max-width: 768px) {
+    main {
+        padding: 24px 16px;
+    }
+
+    .hero h1 {
+        font-size: 40px;
+    }
+
+    .hero-slogan {
+        font-size: 20px;
+    }
+
+    .hero-card,
+    .form-card,
+    .place-detail-card,
+    .swipe-card,
+    .place-mini-card,
+    .empty-feed-static {
+        padding: 18px;
+    }
+
+    .swipe-gallery {
+        grid-template-columns: 40px 1fr 40px;
+        gap: 8px;
+    }
+
+    .gallery-arrow {
+        width: 40px;
+        height: 40px;
+        font-size: 24px;
+    }
+
+    .swipe-image-wrap {
+        min-height: 240px;
+    }
+
+    .card-gallery-image {
+        max-height: 320px;
+    }
+
+    .place-gallery img,
+    .place-gallery-detail img {
+        width: 260px;
+        height: 180px;
+    }
+
+    .btn {
+        width: 100%;
+        text-align: center;
+        box-sizing: border-box;
+    }
+
+    .swipe-actions,
+    .extra-actions,
+    .place-actions,
+    .hero-actions {
+        flex-direction: column;
+    }
 }

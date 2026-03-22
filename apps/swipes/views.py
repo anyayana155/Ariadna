@@ -27,11 +27,32 @@ def _get_next_place_for_user(user):
 
         preferred_category = category_map.get(preferences.purpose)
         if preferred_category:
-            matching = queryset.filter(category=preferred_category)
-            if matching.exists():
-                queryset = matching
+            preferred_queryset = queryset.filter(category=preferred_category)
+            if preferred_queryset.exists():
+                queryset = preferred_queryset
 
     return queryset.first()
+
+
+def _place_to_json(place):
+    images = []
+    for image in place.images.all():
+        if image.image:
+            images.append(image.image.url)
+        elif image.external_url:
+            images.append(image.external_url)
+
+    return {
+        'id': place.id,
+        'title': place.title,
+        'short_description': place.short_description,
+        'full_description': place.full_description,
+        'address': place.address,
+        'metro': place.metro,
+        'average_check': place.average_check,
+        'detail_url': f'/places/{place.slug}/',
+        'images': images,
+    }
 
 
 @login_required
@@ -66,21 +87,9 @@ def swipe_action_view(request):
         if not next_place:
             return JsonResponse({'done': True})
 
-        first_image = next_place.images.first()
-
         return JsonResponse({
             'done': False,
-            'next_place': {
-                'id': next_place.id,
-                'title': next_place.title,
-                'short_description': next_place.short_description,
-                'address': next_place.address,
-                'average_check': next_place.average_check,
-                'detail_url': f'/places/{next_place.slug}/',
-                'image_url': first_image.image.url if first_image and first_image.image else (
-                    first_image.external_url if first_image else ''
-                )
-            }
+            'next_place': _place_to_json(next_place)
         })
 
     except json.JSONDecodeError:

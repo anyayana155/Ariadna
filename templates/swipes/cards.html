@@ -8,46 +8,95 @@
     <h1>Подбор мест</h1>
 
     {% if place %}
-        <div class="swipe-card" id="swipe-card" data-place-id="{{ place.id }}">
-            <div class="swipe-image-wrap">
-                {% with first_image=place.images.first %}
-                    {% if first_image %}
-                        {% if first_image.image %}
-                            <img id="card-image" src="{{ first_image.image.url }}" alt="{{ place.title }}">
-                        {% elif first_image.external_url %}
-                            <img id="card-image" src="{{ first_image.external_url }}" alt="{{ place.title }}">
+        <div class="swipe-card-shell">
+            <div class="swipe-card" id="swipe-card" data-place-id="{{ place.id }}">
+                <div class="swipe-drag-zone" id="swipe-drag-zone">
+                    <div class="swipe-gallery">
+                        <button type="button" class="gallery-arrow" id="prev-image">‹</button>
+
+                        <div class="swipe-image-wrap" id="swipe-image-wrap">
+                            {% for image in place.images.all %}
+                                {% if image.image %}
+                                    <img
+                                        class="card-gallery-image {% if not forloop.first %}hidden{% endif %}"
+                                        src="{{ image.image.url }}"
+                                        alt="{{ place.title }}"
+                                    >
+                                {% elif image.external_url %}
+                                    <img
+                                        class="card-gallery-image {% if not forloop.first %}hidden{% endif %}"
+                                        src="{{ image.external_url }}"
+                                        alt="{{ place.title }}"
+                                    >
+                                {% endif %}
+                            {% empty %}
+                                <div class="no-image">Нет фото</div>
+                            {% endfor %}
+                        </div>
+
+                        <button type="button" class="gallery-arrow" id="next-image">›</button>
+                    </div>
+
+                    <div class="gallery-controls">
+                        <button type="button" class="btn btn-secondary" id="expand-image-btn">Открыть фото</button>
+                    </div>
+
+                    <div class="swipe-content">
+                        <h2 id="card-title">{{ place.title }}</h2>
+                        <p id="card-description-short">{{ place.short_description }}</p>
+
+                        {% if place.full_description %}
+                            <div class="full-description-block">
+                                <button type="button" class="btn btn-secondary" id="toggle-description-btn">
+                                    Развернуть описание
+                                </button>
+                                <p id="card-description-full" class="hidden">{{ place.full_description }}</p>
+                            </div>
+                        {% else %}
+                            <div class="full-description-block">
+                                <button type="button" class="btn btn-secondary hidden" id="toggle-description-btn">
+                                    Развернуть описание
+                                </button>
+                                <p id="card-description-full" class="hidden"></p>
+                            </div>
                         {% endif %}
-                    {% endif %}
-                {% endwith %}
-            </div>
 
-            <div class="swipe-content">
-                <h2 id="card-title">{{ place.title }}</h2>
-                <p id="card-description">{{ place.short_description }}</p>
-                <p><strong>Адрес:</strong> <span id="card-address">{{ place.address }}</span></p>
-                <p><strong>Средний чек:</strong>
-                    <span id="card-check">
-                        {% if place.average_check %}{{ place.average_check }} ₽{% else %}Не указан{% endif %}
-                    </span>
-                </p>
-            </div>
+                        <p><strong>Адрес:</strong> <span id="card-address">{{ place.address }}</span></p>
+                        <p><strong>Метро:</strong> <span id="card-metro">{{ place.metro|default:"Не указано" }}</span></p>
+                        <p>
+                            <strong>Средний чек:</strong>
+                            <span id="card-check">
+                                {% if place.average_check %}{{ place.average_check }} ₽{% else %}Не указан{% endif %}
+                            </span>
+                        </p>
+                    </div>
+                </div>
 
-            <div class="swipe-actions">
-                <button class="btn btn-dislike" data-action="dislike">← Не нравится</button>
-                <button class="btn btn-skip" data-action="skip">Пропустить</button>
-                <a class="btn btn-secondary" id="card-detail-link" href="{% url 'place_detail' place.slug %}">Подробнее</a>
-                <button class="btn btn-like" data-action="like">Нравится →</button>
-            </div>
+                <div class="swipe-actions no-swipe">
+                    <button type="button" class="btn btn-dislike" data-action="dislike">← Не нравится</button>
+                    <button type="button" class="btn btn-skip" data-action="skip">Пропустить</button>
+                    <a class="btn btn-secondary" id="card-detail-link" href="{% url 'place_detail' place.slug %}">Подробнее</a>
+                    <button type="button" class="btn btn-like" data-action="like">Нравится →</button>
+                </div>
 
-            <div class="extra-actions">
-                <a href="#" class="btn btn-secondary">Заявка</a>
-                <a href="#" class="btn btn-secondary">Помощь</a>
+                <div class="extra-actions no-swipe">
+                    <a href="#" class="btn btn-secondary">Заявка</a>
+                    <a href="#" class="btn btn-secondary">Помощь</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="image-modal hidden" id="image-modal">
+            <div class="image-modal-inner">
+                <button type="button" class="modal-close" id="close-image-modal">×</button>
+                <img id="modal-image" src="" alt="Увеличенное фото">
             </div>
         </div>
     {% else %}
-        <div class="empty-feed">
-            <p>Пока карточки закончились.</p>
-            <a href="{% url 'place_list' %}">Открыть все места</a>
+        <div class="empty-feed-static">
+            <h2>Карточки закончились</h2>
+            <p>Ты уже просмотрел(а) все доступные места.</p>
+            <a href="{% url 'place_list' %}" class="btn btn-primary">Открыть все места</a>
         </div>
     {% endif %}
 </section>

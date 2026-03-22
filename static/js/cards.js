@@ -3,11 +3,25 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!card) return;
 
     const titleEl = document.getElementById('card-title');
-    const descEl = document.getElementById('card-description');
+    const shortDescEl = document.getElementById('card-description-short');
+    const fullDescEl = document.getElementById('card-description-full');
+    const toggleDescBtn = document.getElementById('toggle-description-btn');
     const addressEl = document.getElementById('card-address');
+    const metroEl = document.getElementById('card-metro');
     const checkEl = document.getElementById('card-check');
-    const imageEl = document.getElementById('card-image');
     const detailLink = document.getElementById('card-detail-link');
+
+    const imageWrap = document.getElementById('swipe-image-wrap');
+    const prevImageBtn = document.getElementById('prev-image');
+    const nextImageBtn = document.getElementById('next-image');
+    const expandImageBtn = document.getElementById('expand-image-btn');
+
+    const imageModal = document.getElementById('image-modal');
+    const modalImage = document.getElementById('modal-image');
+    const closeImageModal = document.getElementById('close-image-modal');
+
+    let galleryImages = [];
+    let currentImageIndex = 0;
 
     function getCookie(name) {
         let cookieValue = null;
@@ -22,6 +36,59 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
         return cookieValue;
+    }
+
+    function refreshGalleryElements() {
+        galleryImages = Array.from(document.querySelectorAll('.card-gallery-image'));
+        currentImageIndex = 0;
+        renderGallery();
+    }
+
+    function renderGallery() {
+        galleryImages.forEach((img, index) => {
+            img.classList.toggle('hidden', index !== currentImageIndex);
+        });
+    }
+
+    function buildGalleryHtml(images, title) {
+        if (!images || !images.length) {
+            return `<div class="no-image">Нет фото</div>`;
+        }
+
+        return images.map((img, index) => `
+            <img
+                class="card-gallery-image ${index !== 0 ? 'hidden' : ''}"
+                src="${img}"
+                alt="${title}"
+            >
+        `).join('');
+    }
+
+    function openModalWithCurrentImage() {
+        if (!galleryImages.length || !imageModal || !modalImage) return;
+        modalImage.src = galleryImages[currentImageIndex].src;
+        imageModal.classList.remove('hidden');
+    }
+
+    function closeModal() {
+        if (imageModal) {
+            imageModal.classList.add('hidden');
+        }
+    }
+
+    function setFullDescription(text) {
+        if (!fullDescEl || !toggleDescBtn) return;
+
+        if (text && text.trim()) {
+            fullDescEl.textContent = text;
+            fullDescEl.classList.add('hidden');
+            toggleDescBtn.classList.remove('hidden');
+            toggleDescBtn.textContent = 'Развернуть описание';
+        } else {
+            fullDescEl.textContent = '';
+            fullDescEl.classList.add('hidden');
+            toggleDescBtn.classList.add('hidden');
+        }
     }
 
     async function sendAction(action) {
@@ -42,35 +109,45 @@ document.addEventListener('DOMContentLoaded', () => {
         const data = await response.json();
 
         if (data.done) {
-            card.innerHTML = `
-                <div class="empty-feed">
-                    <p>Карточки закончились.</p>
-                    <a href="/places/">Открыть все места</a>
-                </div>
-            `;
+            const shell = document.querySelector('.swipe-card-shell');
+            if (shell) {
+                shell.innerHTML = `
+                    <div class="empty-feed-static">
+                        <h2>Карточки закончились</h2>
+                        <p>Ты уже просмотрел(а) все доступные места.</p>
+                        <a href="/places/" class="btn btn-primary">Открыть все места</a>
+                    </div>
+                `;
+            }
             return;
         }
 
-        if (data.next_place) {
-            const next = data.next_place;
-            card.dataset.placeId = next.id;
-            titleEl.textContent = next.title;
-            descEl.textContent = next.short_description;
-            addressEl.textContent = next.address;
-            checkEl.textContent = next.average_check ? `${next.average_check} ₽` : 'Не указан';
-            detailLink.href = next.detail_url;
+        const next = data.next_place;
+        if (!next) return;
 
-            if (imageEl && next.image_url) {
-                imageEl.src = next.image_url;
-                imageEl.alt = next.title;
-            }
+        card.dataset.placeId = next.id;
+        titleEl.textContent = next.title || '';
+        shortDescEl.textContent = next.short_description || '';
+        addressEl.textContent = next.address || '';
+        metroEl.textContent = next.metro || 'Не указано';
+        checkEl.textContent = next.average_check ? `${next.average_check} ₽` : 'Не указан';
+        detailLink.href = next.detail_url || '#';
 
-            card.classList.remove('swipe-left', 'swipe-right');
-        }
+        setFullDescription(next.full_description || '');
+
+        imageWrap.innerHTML = buildGalleryHtml(next.images || [], next.title || '');
+        refreshGalleryElements();
+
+        card.classList.remove('swipe-left', 'swipe-right');
+        card.style.transform = '';
     }
 
+    // Кнопки действий
     document.querySelectorAll('[data-action]').forEach(button => {
-        button.addEventListener('click', async () => {
+        button.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+
             const action = button.dataset.action;
 
             if (action === 'like') {
@@ -83,11 +160,72 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
+    // Галерея
+    if (prevImageBtn) {
+        prevImageBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            if (!galleryImages.length) return;
+            currentImageIndex = (currentImageIndex - 1 + galleryImages.length) % galleryImages.length;
+            renderGallery();
+        });
+    }
+
+    if (nextImageBtn) {
+        nextImageBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            if (!galleryImages.length) return;
+            currentImageIndex = (currentImageIndex + 1) % galleryImages.length;
+            renderGallery();
+        });
+    }
+
+    if (expandImageBtn) {
+        expandImageBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            openModalWithCurrentImage();
+        });
+    }
+
+    if (toggleDescBtn) {
+        toggleDescBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+
+            const isHidden = fullDescEl.classList.contains('hidden');
+            fullDescEl.classList.toggle('hidden');
+            toggleDescBtn.textContent = isHidden ? 'Свернуть описание' : 'Развернуть описание';
+        });
+    }
+
+    if (closeImageModal) {
+        closeImageModal.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            closeModal();
+        });
+    }
+
+    if (imageModal) {
+        imageModal.addEventListener('click', (e) => {
+            if (e.target === imageModal) {
+                closeModal();
+            }
+        });
+    }
+
+    // Свайп всей карточки, но не при клике по интерактивным элементам
     let startX = 0;
     let currentX = 0;
     let isDragging = false;
 
     card.addEventListener('pointerdown', (e) => {
+        if (e.target.closest('button, a, .gallery-arrow, #expand-image-btn, #toggle-description-btn, .modal-close')) {
+            return;
+        }
+
         isDragging = true;
         startX = e.clientX;
         card.setPointerCapture(e.pointerId);
@@ -100,6 +238,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     card.addEventListener('pointerup', async () => {
+        if (!isDragging) return;
         isDragging = false;
 
         if (currentX > 120) {
@@ -113,4 +252,13 @@ document.addEventListener('DOMContentLoaded', () => {
         card.style.transform = '';
         currentX = 0;
     });
+
+    card.addEventListener('pointercancel', () => {
+        isDragging = false;
+        currentX = 0;
+        card.style.transform = '';
+    });
+
+    refreshGalleryElements();
+    setFullDescription(fullDescEl ? fullDescEl.textContent : '');
 });

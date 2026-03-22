@@ -1,5 +1,4 @@
 {% extends 'base.html' %}
-{% load static %}
 
 {% block title %}{{ place.title }}{% endblock %}
 
@@ -9,7 +8,7 @@
         <h1>{{ place.title }}</h1>
 
         {% if place.images.all %}
-            <div class="place-gallery">
+            <div class="place-gallery-detail">
                 {% for image in place.images.all %}
                     {% if image.image %}
                         <img src="{{ image.image.url }}" alt="{{ place.title }}">
@@ -20,8 +19,8 @@
             </div>
         {% endif %}
 
-        <p><strong>Категория:</strong> {{ place.get_category_display }}</p>
-        <p><strong>Описание:</strong> {{ place.full_description|default:place.short_description }}</p>
+        <p><strong>Кратко:</strong> {{ place.short_description }}</p>
+        <p><strong>Полное описание:</strong> {{ place.full_description|default:"Не указано" }}</p>
         <p><strong>Адрес:</strong> {{ place.address }}</p>
         <p><strong>Метро:</strong> {{ place.metro|default:"Не указано" }}</p>
         <p><strong>Средний чек:</strong>
