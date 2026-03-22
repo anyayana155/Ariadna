@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+
+{% block title %}Редактирование профиля{% endblock %}
+
+{% block content %}
+<h1>Редактирование профиля</h1>
+
+<form method="post">
+    {% csrf_token %}
+
+    <h2>Данные аккаунта</h2>
+    {{ user_form.as_p }}
+
+    <h2>Дополнительно</h2>
+    {{ profile_form.as_p }}
+
+    <button type="submit">Сохранить</button>
+</form>
+{% endblock %}

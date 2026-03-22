@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+
+{% block title %}Профиль{% endblock %}
+
+{% block content %}
+<h1>Профиль</h1>
+
+<p><strong>Логин:</strong> {{ user.username }}</p>
+<p><strong>Email:</strong> {{ user.email }}</p>
+<p><strong>Имя для отображения:</strong> {{ user.profile.display_name|default:"—" }}</p>
+<p><strong>Телефон:</strong> {{ user.profile.phone|default:"—" }}</p>
+
+<p>
+    <a href="{% url 'profile_edit' %}">Редактировать профиль</a>
+</p>
+{% endblock %}
