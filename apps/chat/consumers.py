@@ -1,0 +1,105 @@
+import json
+
+from channels.db import database_sync_to_async
+from channels.generic.websocket import AsyncWebsocketConsumer
+
+from .models import ChatThread, ChatMessage
+from apps.notifications.services import (
+    send_new_chat_email_notification,
+    send_new_chat_push_notification,
+)
+
+
+class ChatConsumer(AsyncWebsocketConsumer):
+    async def connect(self):
+        self.thread_id = self.scope['url_route']['kwargs']['thread_id']
+        self.room_group_name = f'chat_{self.thread_id}'
+        self.user = self.scope['user']
+
+        if self.user.is_anonymous:
+            await self.close()
+            return
+
+        allowed = await self.user_has_access()
+        if not allowed:
+            await self.close()
+            return
+
+        await self.channel_layer.group_add(self.room_group_name, self.channel_name)
+        await self.accept()
+
+    async def disconnect(self, close_code):
+        await self.channel_layer.group_discard(self.room_group_name, self.channel_name)
+
+    async def receive(self, text_data):
+        data = json.loads(text_data)
+        text = (data.get('text') or '').strip()
+        if not text:
+            return
+
+        message = await self.save_message(text)
+
+        await self.channel_layer.group_send(
+            self.room_group_name,
+            {
+                'type': 'chat_message',
+                'message': message,
+            }
+        )
+
+        await self.notify_other_side(message)
+
+    async def chat_message(self, event):
+        await self.send(text_data=json.dumps(event['message']))
+
+    @database_sync_to_async
+    def user_has_access(self):
+        try:
+            thread = ChatThread.objects.get(id=self.thread_id)
+        except ChatThread.DoesNotExist:
+            return False
+
+        return self.user.is_staff or thread.user_id == self.user.id
+
+    @database_sync_to_async
+    def save_message(self, text):
+        thread = ChatThread.objects.get(id=self.thread_id)
+
+        if self.user.is_staff and thread.assigned_admin is None:
+            thread.assigned_admin = self.user
+
+        message = ChatMessage.objects.create(
+            thread=thread,
+            sender=self.user,
+            text=text
+        )
+
+        thread.save()
+
+        return {
+            'id': message.id,
+            'text': message.text,
+            'sender_id': self.user.id,
+            'sender_email': self.user.email,
+            'created_at': message.created_at.strftime('%d.%m.%Y %H:%M'),
+        }
+
+    @database_sync_to_async
+    def notify_other_side(self, message):
+        thread = ChatThread.objects.get(id=self.thread_id)
+
+        if self.user.is_staff:
+            recipient = thread.user
+        else:
+            recipient = thread.assigned_admin
+            if recipient is None:
+                recipient = (
+                    type(self.user).objects
+                    .filter(is_staff=True, is_active=True)
+                    .order_by('id')
+                    .first()
+                )
+
+        if recipient:
+            send_new_chat_email_notification(recipient, thread, message['text'])
+            send_new_chat_push_notification(recipient, thread, message['text'])

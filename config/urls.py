@@ -10,6 +10,9 @@ urlpatterns = [
     path('preferences/', include('apps.preferences.urls')),
     path('places/', include('apps.places.urls')),
     path('cards/', include('apps.swipes.urls')),
+    path('chat/', include('apps.chat.urls')),
+    path('dashboard/', include('apps.dashboard.urls')),
+    path('notifications/', include('apps.notifications.urls')),
 ]
 
 if settings.DEBUG:

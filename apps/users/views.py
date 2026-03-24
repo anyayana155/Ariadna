@@ -1,6 +1,8 @@
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect, render
+from django.contrib.auth.views import LoginView
+from django.urls import reverse
 
 from .forms import ProfileForm, UserRegisterForm
 from .models import Profile
@@ -45,3 +47,15 @@ def profile_edit_view(request):
         form = ProfileForm(instance=profile)
 
     return render(request, 'users/profile_edit.html', {'form': form})
+
+
+class CustomLoginView(LoginView):
+    template_name = 'registration/login.html'
+
+    def get_success_url(self):
+        user = self.request.user
+
+        if user.is_staff:
+            return reverse('dashboard_home')
+
+        return reverse('cards_feed')

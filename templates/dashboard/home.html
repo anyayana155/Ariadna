@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+
+{% block title %}Панель администратора{% endblock %}
+
+{% block content %}
+<section class="dashboard-page">
+    <div class="form-card">
+        <h1>Панель администратора</h1>
+
+        <p><strong>Всего мест:</strong> {{ places_count }}</p>
+
+        <div class="hero-actions">
+            <a href="{% url 'admin_chat_list' %}" class="btn btn-primary">Все чаты</a>
+            <a href="/admin/" class="btn btn-secondary">Django admin</a>
+            <a href="{% url 'place_list' %}" class="btn btn-secondary">Список мест</a>
+        </div>
+
+        <h2 style="margin-top: 24px;">Последние чаты</h2>
+
+        {% for thread in threads %}
+            <div style="margin-bottom: 12px;">
+                <a href="{% url 'chat_thread' thread.id %}">
+                    Чат #{{ thread.id }} — {{ thread.user.email }}
+                </a>
+            </div>
+        {% empty %}
+            <p>Чатов пока нет.</p>
+        {% endfor %}
+    </div>
+</section>
+{% endblock %}

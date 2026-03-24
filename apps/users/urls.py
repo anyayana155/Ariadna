@@ -2,14 +2,18 @@ from django.contrib.auth import views as auth_views
 from django.urls import path
 
 from .forms import UserLoginForm
-from .views import profile_edit_view, profile_view, register_view
+from .views import (
+    CustomLoginView,
+    profile_edit_view,
+    profile_view,
+    register_view,
+)
 
 urlpatterns = [
     path('register/', register_view, name='register'),
     path(
         'login/',
-        auth_views.LoginView.as_view(
-            template_name='registration/login.html',
+        CustomLoginView.as_view(
             authentication_form=UserLoginForm
         ),
         name='login'
