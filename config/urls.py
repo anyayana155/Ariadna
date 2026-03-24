@@ -3,6 +3,7 @@ from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import include, path
 
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('apps.core.urls')),
@@ -13,6 +14,7 @@ urlpatterns = [
     path('chat/', include('apps.chat.urls')),
     path('dashboard/', include('apps.dashboard.urls')),
     path('notifications/', include('apps.notifications.urls')),
+    path('favorites/', include('apps.favorites.urls')),
 ]
 
 if settings.DEBUG:

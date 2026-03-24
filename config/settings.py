@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'apps.chat.apps.ChatConfig',
     'apps.notifications.apps.NotificationsConfig',
     'apps.dashboard.apps.DashboardConfig',
+    'apps.favorites.apps.FavoritesConfig',
 
     'channels',
 

@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+
+{% block title %}Добавить в папку{% endblock %}
+
+{% block content %}
+<section class="form-page">
+    <div class="form-card">
+        <h1>Сохранить место</h1>
+        <p><strong>{{ place.title }}</strong></p>
+
+        <form method="post" action="{% url 'favorite_add_to_folder' place.id %}">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit" class="btn btn-primary">Сохранить</button>
+        </form>
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+
+{% block title %}Мои папки{% endblock %}
+
+{% block content %}
+<section class="form-page">
+    <div class="form-card">
+        <h1>Мои папки</h1>
+
+        <form method="post" action="{% url 'favorite_folder_create' %}" style="margin-bottom: 24px;">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit" class="btn btn-primary">Создать папку</button>
+        </form>
+
+        {% if folders %}
+            <div class="places-grid">
+                {% for folder in folders %}
+                    <article class="place-mini-card">
+                        <h2>{{ folder.name }}</h2>
+                        <p>Мест внутри: {{ folder.items.count }}</p>
+                        <a class="btn btn-secondary" href="{% url 'favorite_folder_detail' folder.id %}">
+                            Открыть
+                        </a>
+                    </article>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p>Папок пока нет.</p>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}

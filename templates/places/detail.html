@@ -35,6 +35,7 @@
         <div class="place-actions">
             <a href="#" class="btn btn-primary">Оставить заявку</a>
             <a href="{% url 'open_support_chat' %}" class="btn btn-secondary">Написать в поддержку</a>
+            <a href="{% url 'favorite_add_to_folder_form' place.id %}" class="btn btn-secondary">Сохранить в папку</a>
             <a href="{% url 'cards_feed' %}" class="btn btn-secondary">Назад к карточкам</a>
         </div>
     </div>

@@ -4,6 +4,7 @@ from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from django.shortcuts import render
 from django.views.decorators.http import require_POST
+from apps.favorites.services import add_place_to_liked_folder
 
 from apps.places.models import Place
 from .models import SwipeAction
@@ -81,6 +82,8 @@ def swipe_action_view(request):
             place=place,
             defaults={'action': action}
         )
+        if action == 'like':
+            add_place_to_liked_folder(request.user, place)
 
         next_place = _get_next_place_for_user(request.user)
 

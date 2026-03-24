@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ folder.name }}{% endblock %}
+
+{% block content %}
+<section class="form-page">
+    <div class="form-card">
+        <h1>{{ folder.name }}</h1>
+
+        {% if folder.items.all %}
+            <div class="places-grid">
+                {% for item in folder.items.all %}
+                    <article class="place-mini-card">
+                        <h2>{{ item.place.title }}</h2>
+                        <p>{{ item.place.short_description }}</p>
+                        <p>{{ item.place.address }}</p>
+
+                        <div class="hero-actions">
+                            <a class="btn btn-secondary" href="{% url 'place_detail' item.place.slug %}">
+                                Подробнее
+                            </a>
+
+                            <form method="post" action="{% url 'favorite_remove_from_folder' item.id %}">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-secondary">Удалить</button>
+                            </form>
+                        </div>
+                    </article>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p>В этой папке пока нет мест.</p>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}
