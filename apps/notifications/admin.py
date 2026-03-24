@@ -13,9 +13,9 @@ class PushSubscriptionAdmin(admin.ModelAdmin):
 class NotificationPreferenceAdmin(admin.ModelAdmin):
     list_display = (
         'user',
-        'email_new_message',
-        'email_booking_updates',
-        'push_new_message',
-        'push_booking_updates',
+        'email_chat',
+        'email_booking',
+        'push_chat',
+        'push_booking',
     )
     search_fields = ('user__email',)

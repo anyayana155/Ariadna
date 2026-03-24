@@ -1,10 +1,13 @@
 import json
 
 from django.contrib.auth.decorators import login_required
+from django.conf import settings
 from django.http import JsonResponse
+from django.shortcuts import redirect, render
 from django.views.decorators.http import require_POST
 
-from .models import PushSubscription
+from .forms import NotificationPreferenceForm
+from .models import NotificationPreference, PushSubscription
 
 
 @login_required
@@ -32,3 +35,21 @@ def save_push_subscription_view(request):
     )
 
     return JsonResponse({'status': 'ok'})
+
+
+@login_required
+def notification_settings_view(request):
+    prefs, _ = NotificationPreference.objects.get_or_create(user=request.user)
+
+    if request.method == 'POST':
+        form = NotificationPreferenceForm(request.POST, instance=prefs)
+        if form.is_valid():
+            form.save()
+            return redirect('notification_settings')
+    else:
+        form = NotificationPreferenceForm(instance=prefs)
+
+    return render(request, 'notifications/settings.html', {
+        'form': form,
+        'vapid_public_key': settings.VAPID_PUBLIC_KEY,
+    })

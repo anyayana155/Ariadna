@@ -4,41 +4,49 @@ from django.conf import settings
 from django.core.mail import send_mail
 from pywebpush import webpush, WebPushException
 
-from .models import PushSubscription
 
-
-def send_new_chat_email_notification(user, thread, text):
+def send_email_notification(user, subject, message, category):
     prefs = getattr(user, 'notification_preferences', None)
-    if prefs and not prefs.email_new_message:
+    if not prefs:
+        return
+
+    if category == 'chat' and not prefs.email_chat:
+        return
+    if category == 'booking' and not prefs.email_booking:
+        return
+    if category == 'system' and not prefs.email_system:
         return
 
     if not user.email:
         return
 
     send_mail(
-        subject='Новое сообщение в чате — Ариадна',
-        message=(
-            f'У вас новое сообщение в чате #{thread.id}.\n\n'
-            f'Текст:\n{text}\n\n'
-            f'Откройте сайт, чтобы ответить.'
-        ),
+        subject=subject,
+        message=message,
         from_email=settings.DEFAULT_FROM_EMAIL,
         recipient_list=[user.email],
         fail_silently=True,
     )
 
 
-def send_new_chat_push_notification(user, thread, text):
+def send_push_notification(user, title, body, url, category):
     prefs = getattr(user, 'notification_preferences', None)
-    if prefs and not prefs.push_new_message:
+    if not prefs:
+        return
+
+    if category == 'chat' and not prefs.push_chat:
+        return
+    if category == 'booking' and not prefs.push_booking:
+        return
+    if category == 'system' and not prefs.push_system:
         return
 
     subscriptions = user.push_subscriptions.filter(is_active=True)
 
     payload = json.dumps({
-        'title': 'Новое сообщение',
-        'body': text[:120],
-        'url': f'/chat/{thread.id}/',
+        'title': title,
+        'body': body,
+        'url': url,
     })
 
     for subscription in subscriptions:

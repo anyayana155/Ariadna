@@ -4,6 +4,7 @@ from channels.db import database_sync_to_async
 from channels.generic.websocket import AsyncWebsocketConsumer
 
 from .models import ChatThread, ChatMessage
+from apps.notifications.services import send_email_notification, send_push_notification
 
 
 class ChatConsumer(AsyncWebsocketConsumer):
@@ -44,6 +45,8 @@ class ChatConsumer(AsyncWebsocketConsumer):
             }
         )
 
+        await self.notify_other_side(message)
+
     async def chat_message(self, event):
         await self.send(text_data=json.dumps(event['message']))
 
@@ -77,3 +80,37 @@ class ChatConsumer(AsyncWebsocketConsumer):
             'sender_email': self.user.email,
             'created_at': message.created_at.strftime('%d.%m.%Y %H:%M'),
         }
+
+    @database_sync_to_async
+    def notify_other_side(self, message):
+        thread = ChatThread.objects.get(id=self.thread_id)
+
+        if self.user.is_staff:
+            recipient = thread.user
+        else:
+            recipient = thread.assigned_admin
+            if recipient is None:
+                recipient = (
+                    type(self.user).objects
+                    .filter(is_staff=True, is_active=True)
+                    .order_by('id')
+                    .first()
+                )
+
+        if not recipient:
+            return
+
+        send_email_notification(
+            recipient,
+            subject='Новое сообщение в чате — Ариадна',
+            message=f'У вас новое сообщение:\n\n{message["text"]}',
+            category='chat'
+        )
+
+        send_push_notification(
+            recipient,
+            title='Новое сообщение',
+            body=message['text'][:120],
+            url=f'/chat/{self.thread_id}/',
+            category='chat'
+        )

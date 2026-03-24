@@ -13,7 +13,6 @@ class PushSubscription(models.Model):
     auth_key = models.TextField()
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return f'Push subscription for {self.user.email}'
@@ -26,11 +25,14 @@ class NotificationPreference(models.Model):
         related_name='notification_preferences'
     )
 
-    email_new_message = models.BooleanField(default=True)
-    email_booking_updates = models.BooleanField(default=True)
+    email_chat = models.BooleanField(default=True)
+    push_chat = models.BooleanField(default=True)
 
-    push_new_message = models.BooleanField(default=True)
-    push_booking_updates = models.BooleanField(default=True)
+    email_booking = models.BooleanField(default=True)
+    push_booking = models.BooleanField(default=True)
+
+    email_system = models.BooleanField(default=True)
+    push_system = models.BooleanField(default=True)
 
     def __str__(self):
         return f'Notification preferences for {self.user.email}'
