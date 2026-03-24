@@ -4,10 +4,6 @@ from channels.db import database_sync_to_async
 from channels.generic.websocket import AsyncWebsocketConsumer
 
 from .models import ChatThread, ChatMessage
-from apps.notifications.services import (
-    send_new_chat_email_notification,
-    send_new_chat_push_notification,
-)
 
 
 class ChatConsumer(AsyncWebsocketConsumer):
@@ -34,6 +30,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
     async def receive(self, text_data):
         data = json.loads(text_data)
         text = (data.get('text') or '').strip()
+
         if not text:
             return
 
@@ -46,8 +43,6 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 'message': message,
             }
         )
-
-        await self.notify_other_side(message)
 
     async def chat_message(self, event):
         await self.send(text_data=json.dumps(event['message']))
@@ -67,14 +62,13 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
         if self.user.is_staff and thread.assigned_admin is None:
             thread.assigned_admin = self.user
+            thread.save(update_fields=['assigned_admin', 'updated_at'])
 
         message = ChatMessage.objects.create(
             thread=thread,
             sender=self.user,
             text=text
         )
-
-        thread.save()
 
         return {
             'id': message.id,
@@ -83,23 +77,3 @@ class ChatConsumer(AsyncWebsocketConsumer):
             'sender_email': self.user.email,
             'created_at': message.created_at.strftime('%d.%m.%Y %H:%M'),
         }
-
-    @database_sync_to_async
-    def notify_other_side(self, message):
-        thread = ChatThread.objects.get(id=self.thread_id)
-
-        if self.user.is_staff:
-            recipient = thread.user
-        else:
-            recipient = thread.assigned_admin
-            if recipient is None:
-                recipient = (
-                    type(self.user).objects
-                    .filter(is_staff=True, is_active=True)
-                    .order_by('id')
-                    .first()
-                )
-
-        if recipient:
-            send_new_chat_email_notification(recipient, thread, message['text'])
-            send_new_chat_push_notification(recipient, thread, message['text'])

@@ -35,6 +35,18 @@ document.addEventListener('DOMContentLoaded', () => {
         messagesEl.scrollTop = messagesEl.scrollHeight;
     };
 
+    socket.onopen = function () {
+        console.log('WebSocket connected');
+    };
+
+    socket.onclose = function (e) {
+        console.log('WebSocket closed', e);
+    };
+
+    socket.onerror = function (e) {
+        console.error('WebSocket error', e);
+    };
+
     form.addEventListener('submit', function (e) {
         e.preventDefault();
 
