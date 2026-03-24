@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+
+{% block title %}Заявка{% endblock %}
+
+{% block content %}
+<section class="form-page">
+    <div class="form-card">
+        <h1>Оставить заявку</h1>
+        <p><strong>Место:</strong> {{ place.title }}</p>
+        <p><strong>Адрес:</strong> {{ place.address }}</p>
+
+        <form method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit" class="btn btn-primary">Отправить заявку</button>
+        </form>
+    </div>
+</section>
+{% endblock %}

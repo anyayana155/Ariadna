@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+
+{% block title %}Мои заявки{% endblock %}
+
+{% block content %}
+<section class="form-page">
+    <div class="form-card">
+        <h1>Мои заявки</h1>
+
+        {% if requests %}
+            {% for request_item in requests %}
+                <div style="margin-bottom: 16px; padding-bottom: 16px; border-bottom: 1px solid #eee;">
+                    <h2 style="margin-bottom: 8px;">{{ request_item.place.title }}</h2>
+                    <p>Дата: {{ request_item.booking_date }}</p>
+                    <p>Время: {{ request_item.booking_time|time:"H:i" }}</p>
+                    <p>Статус: {{ request_item.get_status_display }}</p>
+                    <a href="{% url 'booking_detail' request_item.id %}" class="btn btn-secondary">Подробнее</a>
+                </div>
+            {% endfor %}
+        {% else %}
+            <p>У вас пока нет заявок.</p>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}

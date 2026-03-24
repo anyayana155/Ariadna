@@ -80,7 +80,7 @@
                 </div>
 
                 <div class="extra-actions no-swipe">
-                    <a href="#" class="btn btn-secondary">Заявка</a>
+                    <a href="{% url 'booking_create' place.id %}" class="btn btn-secondary">Заявка</a>
                     <a href="{% url 'favorite_add_to_folder_form' place.id %}" class="btn btn-secondary">Сохранить</a>
                     <a href="{% url 'open_support_chat' %}" 
                     class="btn btn-secondary">Помощь</a>

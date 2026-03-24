@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+
+{% block title %}Заявка #{{ booking.id }}{% endblock %}
+
+{% block content %}
+<section class="form-page">
+    <div class="form-card">
+        <h1>Заявка #{{ booking.id }}</h1>
+
+        <p><strong>Место:</strong> {{ booking.place.title }}</p>
+        <p><strong>Имя:</strong> {{ booking.name }}</p>
+        <p><strong>Телефон:</strong> {{ booking.phone }}</p>
+        <p><strong>Дата:</strong> {{ booking.booking_date }}</p>
+        <p><strong>Время:</strong> {{ booking.booking_time|time:"H:i" }}</p>
+        <p><strong>Количество гостей:</strong> {{ booking.guests_count }}</p>
+        <p><strong>Комментарий:</strong> {{ booking.comment|default:"—" }}</p>
+        <p><strong>Статус:</strong> {{ booking.get_status_display }}</p>
+
+        {% if booking.admin_comment %}
+            <p><strong>Комментарий администратора:</strong> {{ booking.admin_comment }}</p>
+        {% endif %}
+
+        {% if booking.alternative_text %}
+            <p><strong>Предложенная альтернатива:</strong> {{ booking.alternative_text }}</p>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}

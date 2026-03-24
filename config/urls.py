@@ -15,6 +15,7 @@ urlpatterns = [
     path('dashboard/', include('apps.dashboard.urls')),
     path('notifications/', include('apps.notifications.urls')),
     path('favorites/', include('apps.favorites.urls')),
+    path('bookings/', include('apps.bookings.urls')),
 ]
 
 if settings.DEBUG:

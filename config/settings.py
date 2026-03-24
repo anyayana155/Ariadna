@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'apps.notifications.apps.NotificationsConfig',
     'apps.dashboard.apps.DashboardConfig',
     'apps.favorites.apps.FavoritesConfig',
+    'apps.bookings.apps.BookingsConfig',
 
     'channels',
 
