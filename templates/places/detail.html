@@ -20,7 +20,10 @@
         {% endif %}
 
         <p><strong>Кратко:</strong> {{ place.short_description }}</p>
-        <p><strong>Полное описание:</strong> {{ place.full_description|default:"Не указано" }}</p>
+        <div style="margin: 16px 0;">
+            <strong>Полное описание:</strong>
+            <div style="margin-top: 8px;">{{ place.full_description|safe }}</div>
+        </div>
         <p><strong>Адрес:</strong> {{ place.address }}</p>
         <p><strong>Метро:</strong> {{ place.metro|default:"Не указано" }}</p>
         <p><strong>Средний чек:</strong>

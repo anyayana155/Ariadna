@@ -4,8 +4,8 @@ from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from django.shortcuts import render
 from django.views.decorators.http import require_POST
-from apps.favorites.services import add_place_to_liked_folder
 
+from apps.favorites.services import add_place_to_liked_folder
 from apps.places.models import Place
 from .models import SwipeAction
 
@@ -63,6 +63,19 @@ def cards_feed_view(request):
 
 
 @login_required
+def liked_places_view(request):
+    liked_actions = (
+        SwipeAction.objects
+        .select_related('place')
+        .filter(user=request.user, action='like')
+        .order_by('-created_at')
+    )
+    return render(request, 'swipes/liked_places.html', {
+        'liked_actions': liked_actions,
+    })
+
+
+@login_required
 @require_POST
 def swipe_action_view(request):
     try:
@@ -82,6 +95,7 @@ def swipe_action_view(request):
             place=place,
             defaults={'action': action}
         )
+
         if action == 'like':
             add_place_to_liked_folder(request.user, place)
 

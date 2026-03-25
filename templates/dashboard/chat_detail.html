@@ -1,0 +1,81 @@
+{% extends 'base.html' %}
+{% load tz %}
+
+{% block title %}Чат #{{ thread.id }}{% endblock %}
+
+{% block content %}
+<section class="dashboard-chat-layout" style="display:grid; grid-template-columns: 1.5fr 1fr; gap:24px;">
+    <div class="form-card">
+        <h1>Чат #{{ thread.id }}</h1>
+        <p><strong>Пользователь:</strong> {{ thread.user.email }}</p>
+
+        <div style="border: 1px solid #ddd; border-radius: 12px; padding: 16px; min-height: 300px; max-height: 450px; overflow-y: auto; margin-bottom: 16px;">
+            {% for message in thread.messages.all %}
+                <div style="margin-bottom: 14px; {% if message.sender == request.user %}text-align: right;{% endif %}">
+                    <div style="font-size: 12px; color: #666;">
+                        {{ message.sender.email }} · {{ message.created_at|localtime|date:"d.m.Y H:i" }}
+                    </div>
+                    <div style="display: inline-block; margin-top: 4px; padding: 10px 14px; border-radius: 12px; background: {% if message.sender == request.user %}#d66b52; color: white;{% else %}#f1ece7; color: #222;{% endif %}">
+                        {{ message.text }}
+                    </div>
+                </div>
+            {% empty %}
+                <p>Сообщений пока нет.</p>
+            {% endfor %}
+        </div>
+
+        <form method="post">
+            {% csrf_token %}
+            <textarea name="text" rows="3" placeholder="Введите сообщение..." style="width: 100%; padding: 12px; border-radius: 12px; border: 1px solid #ddd; box-sizing: border-box;"></textarea>
+            <div style="margin-top: 12px;">
+                <button type="submit" class="btn btn-primary">Отправить</button>
+            </div>
+        </form>
+    </div>
+
+    <div class="form-card">
+        <h2>Быстрый доступ к пользователю</h2>
+
+        {% if prefs %}
+            <p><strong>Бюджет:</strong> {{ prefs.get_budget_display }}</p>
+            <p><strong>Атмосфера:</strong> {{ prefs.get_atmosphere_display }}</p>
+            <p><strong>Что ищет:</strong> {{ prefs.get_purpose_display }}</p>
+            <p><strong>С кем гуляет:</strong> {{ prefs.get_company_type_display }}</p>
+            <p><strong>Расстояние:</strong> {{ prefs.get_distance_display }}</p>
+            <p><strong>Дополнительно:</strong> {{ prefs.extra_text|default:"—" }}</p>
+        {% else %}
+            <p>Анкета не заполнена.</p>
+        {% endif %}
+
+        <h3 style="margin-top: 20px;">Лайки</h3>
+        {% for item in likes %}
+            <p>• {{ item.place.title }}</p>
+        {% empty %}
+            <p>Нет лайков.</p>
+        {% endfor %}
+
+        <h3 style="margin-top: 20px;">Дизлайки</h3>
+        {% for item in dislikes %}
+            <p>• {{ item.place.title }}</p>
+        {% empty %}
+            <p>Нет дизлайков.</p>
+        {% endfor %}
+
+        <h3 style="margin-top: 20px;">Папки</h3>
+        {% for folder in folders %}
+            <div style="margin-bottom: 10px;">
+                <strong>{{ folder.name }}</strong>
+                <div>
+                    {% for item in folder.items.all %}
+                        • {{ item.place.title }}<br>
+                    {% empty %}
+                        Пусто
+                    {% endfor %}
+                </div>
+            </div>
+        {% empty %}
+            <p>Папок нет.</p>
+        {% endfor %}
+    </div>
+</section>
+{% endblock %}

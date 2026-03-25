@@ -1,0 +1,87 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ page_title }}{% endblock %}
+
+{% block content %}
+<section class="form-page">
+    <div class="form-card">
+        <h1>{{ page_title }}</h1>
+
+        <form method="post" enctype="multipart/form-data" id="place-form">
+            {% csrf_token %}
+
+            <p>{{ form.title.label_tag }} {{ form.title }}</p>
+            <p>{{ form.category.label_tag }} {{ form.category }}</p>
+            <p>{{ form.short_description.label_tag }} {{ form.short_description }}</p>
+
+            <div style="margin-bottom: 20px;">
+                <label style="display:block; margin-bottom:8px; font-weight:600;">Полное описание</label>
+
+                <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:10px;">
+                    <button type="button" class="btn btn-secondary" onclick="editorCommand('bold')"><strong>B</strong></button>
+                    <button type="button" class="btn btn-secondary" onclick="editorCommand('italic')"><em>I</em></button>
+                    <button type="button" class="btn btn-secondary" onclick="editorCommand('insertUnorderedList')">• Список</button>
+                    <button type="button" class="btn btn-secondary" onclick="editorCommand('insertParagraph')">Новая строка</button>
+                </div>
+
+                <div id="rich-editor" contenteditable="true" style="min-height:240px; border:1px solid #ddd; border-radius:12px; padding:14px; background:#fff;">
+                    {% if place %}{{ place.full_description|safe }}{% endif %}
+                </div>
+                {{ form.full_description }}
+            </div>
+
+            <p>{{ form.address.label_tag }} {{ form.address }}</p>
+            <p>{{ form.metro.label_tag }} {{ form.metro }}</p>
+            <p>{{ form.average_check.label_tag }} {{ form.average_check }}</p>
+            <p>{{ form.atmosphere.label_tag }} {{ form.atmosphere }}</p>
+            <p>{{ form.tags_text.label_tag }} {{ form.tags_text }}</p>
+            <p>{{ form.source.label_tag }} {{ form.source }}</p>
+            <p>{{ form.is_published.label_tag }} {{ form.is_published }}</p>
+            <p>{{ form.upload_images.label_tag }} {{ form.upload_images }}</p>
+            <p>{{ form.external_image_urls.label_tag }} {{ form.external_image_urls }}</p>
+
+            {% if place and place.images.all %}
+                <div style="margin: 24px 0;">
+                    <h2>Текущие изображения</h2>
+                    {% for image in place.images.all %}
+                        <div style="margin-bottom: 12px; padding: 12px; border: 1px solid #eee; border-radius: 12px;">
+                            <label>
+                                <input type="checkbox" name="delete_image_ids" value="{{ image.id }}">
+                                Удалить
+                            </label>
+                            <div style="margin-top: 8px;">
+                                {% if image.image %}
+                                    <img src="{{ image.image.url }}" alt="" style="max-width: 220px; max-height: 140px; object-fit: contain;">
+                                {% elif image.external_url %}
+                                    <img src="{{ image.external_url }}" alt="" style="max-width: 220px; max-height: 140px; object-fit: contain;">
+                                {% endif %}
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            <button type="submit" class="btn btn-primary">Сохранить</button>
+        </form>
+    </div>
+</section>
+
+<script>
+    const editor = document.getElementById('rich-editor');
+    const hiddenInput = document.getElementById('id_full_description');
+    const form = document.getElementById('place-form');
+
+    function editorCommand(command) {
+        document.execCommand(command, false, null);
+        syncEditor();
+    }
+
+    function syncEditor() {
+        hiddenInput.value = editor.innerHTML;
+    }
+
+    editor.addEventListener('input', syncEditor);
+    form.addEventListener('submit', syncEditor);
+    syncEditor();
+</script>
+{% endblock %}

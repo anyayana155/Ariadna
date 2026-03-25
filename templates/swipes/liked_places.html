@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+
+{% block title %}Мои лайки{% endblock %}
+
+{% block content %}
+<section class="form-page">
+    <div class="form-card">
+        <h1>Мои лайки</h1>
+
+        {% if liked_actions %}
+            {% for action in liked_actions %}
+                <div style="margin-bottom: 16px; padding-bottom: 16px; border-bottom: 1px solid #eee;">
+                    <h2>{{ action.place.title }}</h2>
+                    <p>{{ action.place.short_description }}</p>
+                    <p>{{ action.place.address }}</p>
+
+                    <div class="hero-actions">
+                        <a href="{% url 'place_detail' action.place.slug %}" class="btn btn-secondary">Подробнее</a>
+                        <a href="{% url 'favorite_add_to_folder_form' action.place.id %}" class="btn btn-secondary">Сохранить в папку</a>
+                        <a href="{% url 'booking_create' action.place.id %}" class="btn btn-secondary">Оставить заявку</a>
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <p>Пока нет лайкнутых мест.</p>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}

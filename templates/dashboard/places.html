@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+
+{% block title %}Места{% endblock %}
+
+{% block content %}
+<section class="form-page">
+    <div class="form-card">
+        <div class="hero-actions">
+            <h1 style="margin:0;">Места</h1>
+            <a href="{% url 'dashboard_place_create' %}" class="btn btn-primary">Добавить место</a>
+        </div>
+
+        {% for place in places %}
+            <div style="margin-bottom: 16px; padding-bottom: 16px; border-bottom: 1px solid #eee;">
+                <h2>{{ place.title }}</h2>
+                <p>{{ place.short_description }}</p>
+                <p>{{ place.address }}</p>
+                <a href="{% url 'dashboard_place_edit' place.id %}" class="btn btn-secondary">Редактировать</a>
+                <a href="{% url 'place_detail' place.slug %}" class="btn btn-secondary">Открыть</a>
+            </div>
+        {% empty %}
+            <p>Мест пока нет.</p>
+        {% endfor %}
+    </div>
+</section>
+{% endblock %}

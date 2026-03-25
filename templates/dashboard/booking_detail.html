@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+
+{% block title %}Заявка #{{ booking.id }}{% endblock %}
+
+{% block content %}
+<section class="form-page">
+    <div class="form-card">
+        <h1>Заявка #{{ booking.id }}</h1>
+
+        <p><strong>Пользователь:</strong> {{ booking.user.email }}</p>
+        <p><strong>Имя:</strong> {{ booking.name }}</p>
+        <p><strong>Телефон:</strong> {{ booking.phone }}</p>
+        <p><strong>Место:</strong> {{ booking.place.title }}</p>
+        <p><strong>Дата:</strong> {{ booking.booking_date }}</p>
+        <p><strong>Время:</strong> {{ booking.booking_time|time:"H:i" }}</p>
+        <p><strong>Количество гостей:</strong> {{ booking.guests_count }}</p>
+        <p><strong>Комментарий пользователя:</strong> {{ booking.comment|default:"—" }}</p>
+
+        <h2 style="margin-top: 24px;">Изменить статус</h2>
+        <form method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit" class="btn btn-primary">Сохранить</button>
+        </form>
+
+        <h2 style="margin-top: 24px;">Анкета пользователя</h2>
+        {% if prefs %}
+            <p><strong>Бюджет:</strong> {{ prefs.get_budget_display }}</p>
+            <p><strong>Атмосфера:</strong> {{ prefs.get_atmosphere_display }}</p>
+            <p><strong>Что ищет:</strong> {{ prefs.get_purpose_display }}</p>
+            <p><strong>С кем гуляет:</strong> {{ prefs.get_company_type_display }}</p>
+            <p><strong>Расстояние:</strong> {{ prefs.get_distance_display }}</p>
+            <p><strong>Дополнительно:</strong> {{ prefs.extra_text|default:"—" }}</p>
+        {% else %}
+            <p>Анкета не заполнена.</p>
+        {% endif %}
+
+        <h2 style="margin-top: 24px;">Лайки</h2>
+        {% for item in likes %}
+            <p>• {{ item.place.title }}</p>
+        {% empty %}
+            <p>Нет лайков.</p>
+        {% endfor %}
+
+        <h2 style="margin-top: 24px;">Дизлайки</h2>
+        {% for item in dislikes %}
+            <p>• {{ item.place.title }}</p>
+        {% empty %}
+            <p>Нет дизлайков.</p>
+        {% endfor %}
+    </div>
+</section>
+{% endblock %}

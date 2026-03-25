@@ -50,14 +50,14 @@
                                 <button type="button" class="btn btn-secondary" id="toggle-description-btn">
                                     Развернуть описание
                                 </button>
-                                <p id="card-description-full" class="hidden">{{ place.full_description }}</p>
+                                <div id="card-description-full" class="hidden">{{ place.full_description|safe }}</div>
                             </div>
                         {% else %}
                             <div class="full-description-block">
                                 <button type="button" class="btn btn-secondary hidden" id="toggle-description-btn">
                                     Развернуть описание
                                 </button>
-                                <p id="card-description-full" class="hidden"></p>
+                                <div id="card-description-full" class="hidden"></div>
                             </div>
                         {% endif %}
 
@@ -81,9 +81,8 @@
 
                 <div class="extra-actions no-swipe">
                     <a href="{% url 'booking_create' place.id %}" class="btn btn-secondary">Заявка</a>
+                    <a href="{% url 'open_support_chat' %}" class="btn btn-secondary">Помощь</a>
                     <a href="{% url 'favorite_add_to_folder_form' place.id %}" class="btn btn-secondary">Сохранить</a>
-                    <a href="{% url 'open_support_chat' %}" 
-                    class="btn btn-secondary">Помощь</a>
                 </div>
             </div>
         </div>

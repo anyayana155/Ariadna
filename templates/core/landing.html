@@ -12,29 +12,20 @@
 
         <div class="hero-text">
             <p>Проводишь время на Бауманке? Тогда я — твой лучший друг.</p>
-            <p>
-                Я знаю, где в этом районе кофе по-настоящему вкусный, где по выходным живая музыка,
-                а где просто уютно посидеть с друзьями.
-            </p>
-            <p>
-                Ты просто говоришь, что любишь, а я подбираю места. Листаешь карточки — я запоминаю твой вкус.
-            </p>
+            <p>Я знаю, где в этом районе кофе по-настоящему вкусный, где по выходным живая музыка, а где просто уютно посидеть с друзьями. И да, я в курсе реальных цен и атмосферы заведения.</p>
+            <p>Ты просто говоришь, что любишь, а я подбираю места. Листаешь карточки — я запоминаю твой вкус. Хочешь сходить куда-то сегодня — я предлагаю варианты, которые тебе подойдут.</p>
             <p>Никаких сюрпризов. Только то, что тебе по душе.</p>
-        </div>
-
-        <div class="name-box">
-            <label for="guest-name">Как тебя зовут?</label>
-            <input type="text" id="guest-name" placeholder="Например, Анна">
         </div>
 
         <div class="hero-actions">
             {% if request.user.is_authenticated %}
-                <a href="{% url 'cards_feed' %}" class="btn btn-primary" id="start-btn">Поехали!</a>
+                {% if request.user.is_staff %}
+                    <a href="{% url 'dashboard_home' %}" class="btn btn-primary">Поехали!</a>
+                {% else %}
+                    <a href="{% url 'cards_feed' %}" class="btn btn-primary">Поехали!</a>
+                {% endif %}
             {% else %}
-                <a href="{% url 'register' %}" class="btn btn-primary" id="start-btn">Поехали!</a>
-            {% endif %}
-
-            {% if not request.user.is_authenticated %}
+                <a href="{% url 'register' %}" class="btn btn-primary">Поехали!</a>
                 <a href="{% url 'login' %}" class="btn btn-secondary">Войти</a>
                 <a href="{% url 'register' %}" class="btn btn-secondary">Зарегистрироваться</a>
             {% endif %}

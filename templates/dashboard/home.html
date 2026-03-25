@@ -7,19 +7,34 @@
     <div class="form-card">
         <h1>Панель администратора</h1>
 
-        <p><strong>Всего мест:</strong> {{ places_count }}</p>
-
         <div class="hero-actions">
-            <a href="{% url 'admin_chat_list' %}" class="btn btn-primary">Все чаты</a>
+            <a href="{% url 'dashboard_bookings' %}" class="btn btn-primary">Заявки</a>
+            <a href="{% url 'dashboard_chats' %}" class="btn btn-secondary">Чаты</a>
+            <a href="{% url 'dashboard_places' %}" class="btn btn-secondary">Места</a>
+            <a href="{% url 'dashboard_preferences' %}" class="btn btn-secondary">Анкеты</a>
             <a href="/admin/" class="btn btn-secondary">Django admin</a>
-            <a href="{% url 'place_list' %}" class="btn btn-secondary">Список мест</a>
         </div>
 
-        <h2 style="margin-top: 24px;">Последние чаты</h2>
+        <div style="margin-top: 24px;">
+            <p><strong>Всего мест:</strong> {{ places_count }}</p>
+            <p><strong>Пользователей с анкетами:</strong> {{ users_with_preferences }}</p>
+        </div>
 
+        <h2 style="margin-top: 24px;">Последние заявки</h2>
+        {% for booking in bookings %}
+            <div style="margin-bottom: 12px;">
+                <a href="{% url 'dashboard_booking_detail' booking.id %}">
+                    Заявка #{{ booking.id }} — {{ booking.user.email }} — {{ booking.place.title }}
+                </a>
+            </div>
+        {% empty %}
+            <p>Заявок пока нет.</p>
+        {% endfor %}
+
+        <h2 style="margin-top: 24px;">Последние чаты</h2>
         {% for thread in threads %}
             <div style="margin-bottom: 12px;">
-                <a href="{% url 'chat_thread' thread.id %}">
+                <a href="{% url 'dashboard_chat_detail' thread.id %}">
                     Чат #{{ thread.id }} — {{ thread.user.email }}
                 </a>
             </div>

@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+
+{% block title %}Заявки{% endblock %}
+
+{% block content %}
+<section class="form-page">
+    <div class="form-card">
+        <h1>Заявки</h1>
+
+        {% for booking in bookings %}
+            <div style="margin-bottom: 16px; padding-bottom: 16px; border-bottom: 1px solid #eee;">
+                <h2 style="margin-bottom: 6px;">#{{ booking.id }} — {{ booking.place.title }}</h2>
+                <p>Email: {{ booking.user.email }}</p>
+                <p>Дата: {{ booking.booking_date }} / {{ booking.booking_time|time:"H:i" }}</p>
+                <p>Гостей: {{ booking.guests_count }}</p>
+                <p>Статус: {{ booking.get_status_display }}</p>
+                <a href="{% url 'dashboard_booking_detail' booking.id %}" class="btn btn-secondary">Открыть</a>
+            </div>
+        {% empty %}
+            <p>Заявок пока нет.</p>
+        {% endfor %}
+    </div>
+</section>
+{% endblock %}

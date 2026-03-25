@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+
+{% block title %}Чаты{% endblock %}
+
+{% block content %}
+<section class="form-page">
+    <div class="form-card">
+        <h1>Чаты поддержки</h1>
+
+        {% for thread in threads %}
+            <div style="margin-bottom: 16px; padding-bottom: 16px; border-bottom: 1px solid #eee;">
+                <h2>Чат #{{ thread.id }}</h2>
+                <p>Пользователь: {{ thread.user.email }}</p>
+                <p>
+                    Назначенный админ:
+                    {% if thread.assigned_admin %}
+                        {{ thread.assigned_admin.email }}
+                    {% else %}
+                        —
+                    {% endif %}
+                </p>
+                <a href="{% url 'dashboard_chat_detail' thread.id %}" class="btn btn-secondary">Открыть чат</a>
+            </div>
+        {% empty %}
+            <p>Чатов пока нет.</p>
+        {% endfor %}
+    </div>
+</section>
+{% endblock %}
