@@ -10,10 +10,8 @@
         {% if place.images.all %}
             <div class="place-gallery-detail">
                 {% for image in place.images.all %}
-                    {% if image.image %}
-                        <img src="{{ image.image.url }}" alt="{{ place.title }}">
-                    {% elif image.external_url %}
-                        <img src="{{ image.external_url }}" alt="{{ place.title }}">
+                    {% if image.image_url %}
+                        <img src="{{ image.image_url }}" alt="{{ place.title }}">
                     {% endif %}
                 {% endfor %}
             </div>

@@ -15,6 +15,7 @@
                 <h2>{{ place.title }}</h2>
                 <p>{{ place.short_description }}</p>
                 <p>{{ place.address }}</p>
+                <p style="color:#666;">Slug: {{ place.slug }}</p>
                 <div class="hero-actions">
                     <a href="{% url 'dashboard_place_edit' place.id %}" class="btn btn-secondary">Редактировать</a>
                     <a href="{% url 'place_detail' place.slug %}" class="btn btn-secondary">Открыть</a>

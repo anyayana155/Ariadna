@@ -11,7 +11,6 @@
             {% csrf_token %}
 
             <p>{{ form.title.label_tag }} {{ form.title }}</p>
-            <p>{{ form.slug.label_tag }} {{ form.slug }}</p>
             <p>{{ form.category.label_tag }} {{ form.category }}</p>
             <p>{{ form.short_description.label_tag }} {{ form.short_description }}</p>
 
@@ -19,15 +18,18 @@
                 <label style="display:block; margin-bottom:8px; font-weight:600;">Полное описание</label>
 
                 <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:10px;">
-                    <button type="button" class="btn btn-secondary" onclick="editorCommand('bold')"><strong>B</strong></button>
-                    <button type="button" class="btn btn-secondary" onclick="editorCommand('italic')"><em>I</em></button>
-                    <button type="button" class="btn btn-secondary" onclick="editorCommand('insertUnorderedList')">• Список</button>
-                    <button type="button" class="btn btn-secondary" onclick="editorCommand('insertParagraph')">Новая строка</button>
+                    <button type="button" class="btn btn-secondary js-editor-btn" data-command="bold"><strong>B</strong></button>
+                    <button type="button" class="btn btn-secondary js-editor-btn" data-command="italic"><em>I</em></button>
+                    <button type="button" class="btn btn-secondary js-editor-btn" data-command="insertUnorderedList">• Список</button>
+                    <button type="button" class="btn btn-secondary js-editor-btn" data-command="formatBlock" data-value="p">Новая строка</button>
                 </div>
 
-                <div id="rich-editor" contenteditable="true" style="min-height:240px; border:1px solid #ddd; border-radius:12px; padding:14px; background:#fff;">
-                    {% if place %}{{ place.full_description|safe }}{% endif %}
-                </div>
+                <div
+                    id="rich-editor"
+                    contenteditable="true"
+                    style="min-height:240px; border:1px solid #ddd; border-radius:12px; padding:14px; background:#fff;"
+                >{% if place %}{{ place.full_description|safe }}{% endif %}</div>
+
                 {{ form.full_description }}
             </div>
 
@@ -38,7 +40,11 @@
             <p>{{ form.tags_text.label_tag }} {{ form.tags_text }}</p>
             <p>{{ form.is_published.label_tag }} {{ form.is_published }}</p>
             <p>{{ form.upload_images.label_tag }} {{ form.upload_images }}</p>
-            <p style="color:#666; margin-top:-10px;">Можно добавлять новые фото при каждом редактировании. Это удобно и с телефона тоже.</p>
+            <p>{{ form.external_image_urls.label_tag }} {{ form.external_image_urls }}</p>
+
+            {% if place %}
+                <p style="color:#666;">Slug этой страницы будет: <strong>{{ place.slug }}</strong></p>
+            {% endif %}
 
             {% if place and place.images.all %}
                 <div style="margin: 24px 0;">
@@ -50,10 +56,8 @@
                                 Удалить
                             </label>
                             <div style="margin-top: 8px;">
-                                {% if image.image %}
-                                    <img src="{{ image.image.url }}" alt="" style="max-width: 220px; max-height: 140px; object-fit: contain;">
-                                {% elif image.external_url %}
-                                    <img src="{{ image.external_url }}" alt="" style="max-width: 220px; max-height: 140px; object-fit: contain;">
+                                {% if image.image_url %}
+                                    <img src="{{ image.image_url }}" alt="" style="max-width: 220px; max-height: 140px; object-fit: contain;">
                                 {% endif %}
                             </div>
                         </div>
@@ -70,18 +74,81 @@
     const editor = document.getElementById('rich-editor');
     const hiddenInput = document.getElementById('id_full_description');
     const form = document.getElementById('place-form');
-
-    function editorCommand(command) {
-        document.execCommand(command, false, null);
-        syncEditor();
-    }
+    let savedRange = null;
 
     function syncEditor() {
-        hiddenInput.value = editor.innerHTML;
+        hiddenInput.value = editor.innerHTML.trim();
     }
 
+    function saveSelection() {
+        const selection = window.getSelection();
+        if (!selection.rangeCount) return;
+        const range = selection.getRangeAt(0);
+
+        if (editor.contains(range.commonAncestorContainer)) {
+            savedRange = range.cloneRange();
+        }
+    }
+
+    function restoreSelection() {
+        if (!savedRange) return;
+        const selection = window.getSelection();
+        selection.removeAllRanges();
+        selection.addRange(savedRange);
+    }
+
+    function focusEditorEnd() {
+        editor.focus();
+        const selection = window.getSelection();
+        const range = document.createRange();
+        range.selectNodeContents(editor);
+        range.collapse(false);
+        selection.removeAllRanges();
+        selection.addRange(range);
+        saveSelection();
+    }
+
+    document.querySelectorAll('.js-editor-btn').forEach((button) => {
+        button.addEventListener('mousedown', (event) => {
+            event.preventDefault();
+        });
+
+        button.addEventListener('click', (event) => {
+            event.preventDefault();
+
+            if (document.activeElement !== editor) {
+                if (savedRange) {
+                    restoreSelection();
+                } else {
+                    focusEditorEnd();
+                }
+            } else {
+                restoreSelection();
+            }
+
+            const command = button.dataset.command;
+            const value = button.dataset.value || null;
+
+            editor.focus();
+            document.execCommand(command, false, value);
+            saveSelection();
+            syncEditor();
+        });
+    });
+
+    editor.addEventListener('keyup', saveSelection);
+    editor.addEventListener('mouseup', saveSelection);
+    editor.addEventListener('focus', saveSelection);
     editor.addEventListener('input', syncEditor);
-    form.addEventListener('submit', syncEditor);
+
+    form.addEventListener('submit', () => {
+        syncEditor();
+    });
+
+    if (!editor.innerHTML.trim()) {
+        editor.innerHTML = '<p></p>';
+    }
+
     syncEditor();
 </script>
 {% endblock %}

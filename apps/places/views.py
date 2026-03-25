@@ -1,15 +1,21 @@
 from django.shortcuts import get_object_or_404, render
+
 from .models import Place
 
 
 def place_list_view(request):
-    places = Place.objects.filter(is_published=True).prefetch_related('images')
+    places = (
+        Place.objects
+        .filter(is_published=True)
+        .prefetch_related('images')
+        .order_by('-created_at')
+    )
     return render(request, 'places/list.html', {'places': places})
 
 
 def place_detail_view(request, slug):
     place = get_object_or_404(
-        Place.objects.prefetch_related('images', 'tags'),
+        Place.objects.prefetch_related('images'),
         slug=slug,
         is_published=True
     )

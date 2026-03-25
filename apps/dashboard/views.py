@@ -123,6 +123,11 @@ def dashboard_place_create_view(request):
             for image in form.cleaned_data.get('upload_images', []):
                 PlaceImage.objects.create(place=place, image=image)
 
+            for url in (form.cleaned_data.get('external_image_urls') or '').splitlines():
+                clean_url = url.strip()
+                if clean_url:
+                    PlaceImage.objects.create(place=place, external_url=clean_url)
+
             return redirect('dashboard_places')
     else:
         form = DashboardPlaceForm()
@@ -148,6 +153,11 @@ def dashboard_place_edit_view(request, place_id):
 
             for image in form.cleaned_data.get('upload_images', []):
                 PlaceImage.objects.create(place=place, image=image)
+
+            for url in (form.cleaned_data.get('external_image_urls') or '').splitlines():
+                clean_url = url.strip()
+                if clean_url:
+                    PlaceImage.objects.create(place=place, external_url=clean_url)
 
             delete_ids = request.POST.getlist('delete_image_ids')
             if delete_ids:

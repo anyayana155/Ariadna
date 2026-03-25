@@ -16,16 +16,10 @@
 
                         <div class="swipe-image-wrap" id="swipe-image-wrap">
                             {% for image in place.images.all %}
-                                {% if image.image %}
+                                {% if image.image_url %}
                                     <img
                                         class="card-gallery-image {% if not forloop.first %}hidden{% endif %}"
-                                        src="{{ image.image.url }}"
-                                        alt="{{ place.title }}"
-                                    >
-                                {% elif image.external_url %}
-                                    <img
-                                        class="card-gallery-image {% if not forloop.first %}hidden{% endif %}"
-                                        src="{{ image.external_url }}"
+                                        src="{{ image.image_url }}"
                                         alt="{{ place.title }}"
                                     >
                                 {% endif %}

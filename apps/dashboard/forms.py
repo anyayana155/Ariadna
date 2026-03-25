@@ -40,12 +40,19 @@ class DashboardPlaceForm(forms.ModelForm):
         required=False,
         label='Добавить фотографии'
     )
+    external_image_urls = forms.CharField(
+        required=False,
+        label='Внешние ссылки на изображения',
+        widget=forms.Textarea(attrs={
+            'rows': 4,
+            'placeholder': 'Каждая ссылка на новой строке',
+        })
+    )
 
     class Meta:
         model = Place
         fields = [
             'title',
-            'slug',
             'category',
             'short_description',
             'full_description',
@@ -63,9 +70,3 @@ class DashboardPlaceForm(forms.ModelForm):
             'short_description': forms.Textarea(attrs={'rows': 3}),
             'full_description': forms.HiddenInput(),
         }
-
-    def clean_slug(self):
-        slug = (self.cleaned_data.get('slug') or '').strip()
-        if not slug:
-            raise forms.ValidationError('Укажи slug латиницей.')
-        return slug
