@@ -21,29 +21,47 @@ function getCookie(name) {
 }
 
 async function enablePush() {
-    if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
-        alert('Push-уведомления не поддерживаются этим браузером.');
-        return;
+    if (!('serviceWorker' in navigator)) {
+        throw new Error('Service Worker не поддерживается');
     }
 
+    if (!('PushManager' in window)) {
+        throw new Error('PushManager не поддерживается');
+    }
+
+    if (!VAPID_PUBLIC_KEY || VAPID_PUBLIC_KEY.length < 80) {
+        throw new Error('Некорректный VAPID public key');
+    }
+
+    console.log('VAPID_PUBLIC_KEY:', VAPID_PUBLIC_KEY);
+    console.log('VAPID_PUBLIC_KEY length:', VAPID_PUBLIC_KEY.length);
+
     const permission = await Notification.requestPermission();
+    console.log('Notification permission:', permission);
+
     if (permission !== 'granted') {
-        alert('Разрешение на push-уведомления не выдано.');
-        return;
+        throw new Error('Разрешение на уведомления не выдано');
     }
 
     const registration = await navigator.serviceWorker.register('/static/service-worker.js');
+    console.log('Service worker registered:', registration);
 
     let subscription = await registration.pushManager.getSubscription();
+    console.log('Existing subscription:', subscription);
 
     if (!subscription) {
+        const applicationServerKey = urlBase64ToUint8Array(VAPID_PUBLIC_KEY);
+        console.log('applicationServerKey length:', applicationServerKey.length);
+
         subscription = await registration.pushManager.subscribe({
             userVisibleOnly: true,
-            applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY),
+            applicationServerKey: applicationServerKey,
         });
+
+        console.log('New subscription created:', subscription);
     }
 
-    await fetch('/notifications/save-subscription/', {
+    const response = await fetch('/notifications/save-subscription/', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -52,12 +70,29 @@ async function enablePush() {
         body: JSON.stringify({ subscription }),
     });
 
-    alert('Push-уведомления включены для этого устройства.');
+    console.log('Save subscription response status:', response.status);
+
+    if (!response.ok) {
+        const text = await response.text();
+        console.log('Save subscription response body:', text);
+        throw new Error(`Ошибка сохранения подписки: ${response.status}`);
+    }
+
+    return true;
 }
 
 document.addEventListener('DOMContentLoaded', () => {
     const btn = document.getElementById('enable-push-btn');
-    if (btn && typeof VAPID_PUBLIC_KEY !== 'undefined' && VAPID_PUBLIC_KEY) {
-        btn.addEventListener('click', enablePush);
+
+    if (btn) {
+        btn.addEventListener('click', async () => {
+            try {
+                await enablePush();
+                alert('Push-уведомления включены для этого устройства.');
+            } catch (error) {
+                console.error('Push enable error:', error);
+                alert(`Не удалось включить push-уведомления: ${error.message}`);
+            }
+        });
     }
 });

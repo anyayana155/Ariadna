@@ -1,4 +1,4 @@
-from django.db.models.signals import pre_save, post_save
+from django.db.models.signals import post_save, pre_save
 from django.dispatch import receiver
 
 from apps.notifications.services import send_email_notification, send_push_notification
@@ -19,46 +19,63 @@ def store_old_booking_status(sender, instance, **kwargs):
 
 
 @receiver(post_save, sender=BookingRequest)
-def notify_booking_status_changed(sender, instance, created, **kwargs):
+def notify_booking_events(sender, instance, created, **kwargs):
     if created:
+        admins = type(instance.user).objects.filter(is_staff=True, is_active=True)
+        message = (
+            f'Новая заявка #{instance.id}\n\n'
+            f'Пользователь: {instance.user.email}\n'
+            f'Место: {instance.place.title}\n'
+            f'Дата: {instance.booking_date}\n'
+            f'Время: {instance.booking_time}\n'
+            f'Гостей: {instance.guests_count}'
+        )
+
+        for admin in admins:
+            send_email_notification(
+                admin,
+                subject='Новая заявка — Ариадна',
+                message=message,
+                category='booking',
+            )
+            send_push_notification(
+                admin,
+                title='Новая заявка',
+                body=f'{instance.place.title} — {instance.user.email}',
+                url=f'/dashboard/bookings/{instance.id}/',
+                category='booking',
+            )
         return
 
     old_status = getattr(instance, '_old_status', None)
-    new_status = instance.status
-
-    if old_status == new_status:
+    if old_status == instance.status:
         return
 
-    user = instance.user
-    place = instance.place
-
     status_label = instance.get_status_display()
-
-    message_lines = [
+    lines = [
         f'Статус вашей заявки #{instance.id} изменён.',
-        f'Место: {place.title}',
+        f'Место: {instance.place.title}',
         f'Новый статус: {status_label}',
     ]
 
     if instance.admin_comment:
-        message_lines.append(f'Комментарий администратора: {instance.admin_comment}')
+        lines.append(f'Комментарий администратора: {instance.admin_comment}')
 
     if instance.alternative_text:
-        message_lines.append(f'Предложенная альтернатива: {instance.alternative_text}')
+        lines.append(f'Предложенная альтернатива: {instance.alternative_text}')
 
-    message = '\n\n'.join(message_lines)
+    message = '\n\n'.join(lines)
 
     send_email_notification(
-        user,
+        instance.user,
         subject='Обновление заявки — Ариадна',
         message=message,
-        category='booking'
+        category='booking',
     )
-
     send_push_notification(
-        user,
+        instance.user,
         title='Обновление заявки',
-        body=f'{place.title}: {status_label}',
+        body=f'{instance.place.title}: {status_label}',
         url=f'/bookings/{instance.id}/',
-        category='booking'
+        category='booking',
     )

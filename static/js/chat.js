@@ -8,9 +8,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const protocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
     const socket = new WebSocket(`${protocol}://${window.location.host}/ws/chat/${CHAT_THREAD_ID}/`);
 
-    socket.onmessage = function (e) {
-        const data = JSON.parse(e.data);
-
+    function appendMessage(data) {
         const wrapper = document.createElement('div');
         wrapper.style.marginBottom = '14px';
 
@@ -33,10 +31,15 @@ document.addEventListener('DOMContentLoaded', () => {
         wrapper.querySelector('div:last-child').textContent = data.text;
         messagesEl.appendChild(wrapper);
         messagesEl.scrollTop = messagesEl.scrollHeight;
+    }
+
+    socket.onmessage = function (e) {
+        const data = JSON.parse(e.data);
+        appendMessage(data);
     };
 
     socket.onopen = function () {
-        console.log('WebSocket connected');
+        messagesEl.scrollTop = messagesEl.scrollHeight;
     };
 
     socket.onclose = function (e) {
@@ -52,8 +55,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const text = input.value.trim();
         if (!text) return;
+        if (socket.readyState !== WebSocket.OPEN) return;
 
         socket.send(JSON.stringify({ text }));
         input.value = '';
     });
+
+    messagesEl.scrollTop = messagesEl.scrollHeight;
 });

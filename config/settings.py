@@ -164,4 +164,4 @@ CHANNEL_LAYERS = {
 }
 
 VAPID_PUBLIC_KEY = os.getenv('VAPID_PUBLIC_KEY')
-VAPID_PRIVATE_KEY = os.getenv('VAPID_PRIVATE_KEY')
+VAPID_PRIVATE_KEY = BASE_DIR / 'vapid_private_key.pem'

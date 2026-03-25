@@ -9,7 +9,7 @@
         <h1>Чат #{{ thread.id }}</h1>
         <p><strong>Пользователь:</strong> {{ thread.user.email }}</p>
 
-        <div style="border: 1px solid #ddd; border-radius: 12px; padding: 16px; min-height: 300px; max-height: 450px; overflow-y: auto; margin-bottom: 16px;">
+        <div id="chat-messages" style="border: 1px solid #ddd; border-radius: 12px; padding: 16px; min-height: 300px; max-height: 450px; overflow-y: auto; margin-bottom: 16px;">
             {% for message in thread.messages.all %}
                 <div style="margin-bottom: 14px; {% if message.sender == request.user %}text-align: right;{% endif %}">
                     <div style="font-size: 12px; color: #666;">
@@ -24,9 +24,8 @@
             {% endfor %}
         </div>
 
-        <form method="post">
-            {% csrf_token %}
-            <textarea name="text" rows="3" placeholder="Введите сообщение..." style="width: 100%; padding: 12px; border-radius: 12px; border: 1px solid #ddd; box-sizing: border-box;"></textarea>
+        <form id="chat-form">
+            <textarea id="chat-input" rows="3" placeholder="Введите сообщение..." style="width: 100%; padding: 12px; border-radius: 12px; border: 1px solid #ddd; box-sizing: border-box;"></textarea>
             <div style="margin-top: 12px;">
                 <button type="submit" class="btn btn-primary">Отправить</button>
             </div>
@@ -78,4 +77,12 @@
         {% endfor %}
     </div>
 </section>
+
+<script>
+    const CHAT_THREAD_ID = "{{ thread.id }}";
+    const CURRENT_USER_ID = "{{ request.user.id }}";
+    const VAPID_PUBLIC_KEY = "{{ vapid_public_key|escapejs }}";
+</script>
+<script src="/static/js/chat.js"></script>
+<script src="/static/js/push.js"></script>
 {% endblock %}

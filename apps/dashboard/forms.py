@@ -4,18 +4,22 @@ from apps.bookings.models import BookingRequest
 from apps.places.models import Place
 
 
-class MultipleFileInput(forms.ClearableFileInput):
+class MultipleImageInput(forms.ClearableFileInput):
     allow_multiple_selected = True
 
+    def __init__(self, attrs=None):
+        attrs = attrs or {}
+        attrs.setdefault('accept', 'image/*')
+        super().__init__(attrs)
 
-class MultipleFileField(forms.FileField):
-    widget = MultipleFileInput
+
+class MultipleImageField(forms.FileField):
+    widget = MultipleImageInput
 
     def clean(self, data, initial=None):
         single_file_clean = super().clean
         if isinstance(data, (list, tuple)):
-            result = [single_file_clean(d, initial) for d in data if d]
-            return result
+            return [single_file_clean(item, initial) for item in data if item]
         if data:
             return [single_file_clean(data, initial)]
         return []
@@ -32,23 +36,16 @@ class DashboardBookingUpdateForm(forms.ModelForm):
 
 
 class DashboardPlaceForm(forms.ModelForm):
-    external_image_urls = forms.CharField(
+    upload_images = MultipleImageField(
         required=False,
-        widget=forms.Textarea(attrs={
-            'rows': 4,
-            'placeholder': 'Каждая ссылка на фото с новой строки'
-        }),
-        label='Внешние ссылки на изображения'
-    )
-    upload_images = MultipleFileField(
-        required=False,
-        label='Загрузить изображения'
+        label='Добавить фотографии'
     )
 
     class Meta:
         model = Place
         fields = [
             'title',
+            'slug',
             'category',
             'short_description',
             'full_description',
@@ -57,10 +54,18 @@ class DashboardPlaceForm(forms.ModelForm):
             'average_check',
             'atmosphere',
             'tags_text',
-            'source',
             'is_published',
         ]
+        labels = {
+            'tags_text': 'Теги / ключевые слова',
+        }
         widgets = {
             'short_description': forms.Textarea(attrs={'rows': 3}),
             'full_description': forms.HiddenInput(),
         }
+
+    def clean_slug(self):
+        slug = (self.cleaned_data.get('slug') or '').strip()
+        if not slug:
+            raise forms.ValidationError('Укажи slug латиницей.')
+        return slug

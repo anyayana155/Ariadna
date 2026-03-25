@@ -7,6 +7,7 @@ from .views import (
     dashboard_chats_view,
     dashboard_home_view,
     dashboard_place_create_view,
+    dashboard_place_delete_view,
     dashboard_place_edit_view,
     dashboard_places_view,
     dashboard_preferences_export_view,
@@ -22,6 +23,7 @@ urlpatterns = [
     path('places/', dashboard_places_view, name='dashboard_places'),
     path('places/create/', dashboard_place_create_view, name='dashboard_place_create'),
     path('places/<int:place_id>/edit/', dashboard_place_edit_view, name='dashboard_place_edit'),
+    path('places/<int:place_id>/delete/', dashboard_place_delete_view, name='dashboard_place_delete'),
     path('preferences/', dashboard_preferences_view, name='dashboard_preferences'),
     path('preferences/export/', dashboard_preferences_export_view, name='dashboard_preferences_export'),
 ]

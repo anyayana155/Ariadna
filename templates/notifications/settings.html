@@ -23,7 +23,7 @@
 </section>
 
 <script>
-    const VAPID_PUBLIC_KEY = "{{ vapid_public_key|default:'' }}";
+    const VAPID_PUBLIC_KEY = "{{ vapid_public_key|escapejs }}";
 </script>
 <script src="/static/js/push.js"></script>
 {% endblock %}

@@ -11,6 +11,7 @@
             {% csrf_token %}
 
             <p>{{ form.title.label_tag }} {{ form.title }}</p>
+            <p>{{ form.slug.label_tag }} {{ form.slug }}</p>
             <p>{{ form.category.label_tag }} {{ form.category }}</p>
             <p>{{ form.short_description.label_tag }} {{ form.short_description }}</p>
 
@@ -35,10 +36,9 @@
             <p>{{ form.average_check.label_tag }} {{ form.average_check }}</p>
             <p>{{ form.atmosphere.label_tag }} {{ form.atmosphere }}</p>
             <p>{{ form.tags_text.label_tag }} {{ form.tags_text }}</p>
-            <p>{{ form.source.label_tag }} {{ form.source }}</p>
             <p>{{ form.is_published.label_tag }} {{ form.is_published }}</p>
             <p>{{ form.upload_images.label_tag }} {{ form.upload_images }}</p>
-            <p>{{ form.external_image_urls.label_tag }} {{ form.external_image_urls }}</p>
+            <p style="color:#666; margin-top:-10px;">Можно добавлять новые фото при каждом редактировании. Это удобно и с телефона тоже.</p>
 
             {% if place and place.images.all %}
                 <div style="margin: 24px 0;">

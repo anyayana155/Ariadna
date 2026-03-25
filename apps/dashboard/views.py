@@ -7,7 +7,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from openpyxl import Workbook
 
 from apps.bookings.models import BookingRequest
-from apps.chat.models import ChatMessage, ChatThread
+from apps.chat.models import ChatThread
 from apps.dashboard.forms import DashboardBookingUpdateForm, DashboardPlaceForm
 from apps.favorites.models import FavoriteFolder
 from apps.places.models import Place, PlaceImage
@@ -83,20 +83,6 @@ def dashboard_chat_detail_view(request, thread_id):
         id=thread_id
     )
 
-    if request.method == 'POST':
-        text = (request.POST.get('text') or '').strip()
-        if text:
-            if thread.assigned_admin is None:
-                thread.assigned_admin = request.user
-                thread.save(update_fields=['assigned_admin', 'updated_at'])
-
-            ChatMessage.objects.create(
-                thread=thread,
-                sender=request.user,
-                text=text
-            )
-            return redirect('dashboard_chat_detail', thread_id=thread.id)
-
     prefs = getattr(thread.user, 'preferences', None)
     likes = SwipeAction.objects.select_related('place').filter(
         user=thread.user,
@@ -130,16 +116,12 @@ def dashboard_place_create_view(request):
         if form.is_valid():
             place = form.save(commit=False)
             place.created_by = request.user
+            place.source = ''
             place.save()
             form.save_m2m()
 
             for image in form.cleaned_data.get('upload_images', []):
                 PlaceImage.objects.create(place=place, image=image)
-
-            for url in (form.cleaned_data.get('external_image_urls') or '').splitlines():
-                clean_url = url.strip()
-                if clean_url:
-                    PlaceImage.objects.create(place=place, external_url=clean_url)
 
             return redirect('dashboard_places')
     else:
@@ -159,15 +141,13 @@ def dashboard_place_edit_view(request, place_id):
     if request.method == 'POST':
         form = DashboardPlaceForm(request.POST, request.FILES, instance=place)
         if form.is_valid():
-            place = form.save()
+            place = form.save(commit=False)
+            place.source = ''
+            place.save()
+            form.save_m2m()
 
             for image in form.cleaned_data.get('upload_images', []):
                 PlaceImage.objects.create(place=place, image=image)
-
-            for url in (form.cleaned_data.get('external_image_urls') or '').splitlines():
-                clean_url = url.strip()
-                if clean_url:
-                    PlaceImage.objects.create(place=place, external_url=clean_url)
 
             delete_ids = request.POST.getlist('delete_image_ids')
             if delete_ids:
@@ -182,6 +162,15 @@ def dashboard_place_edit_view(request, place_id):
         'page_title': f'Редактировать: {place.title}',
         'place': place,
     })
+
+
+@staff_member_required
+def dashboard_place_delete_view(request, place_id):
+    place = get_object_or_404(Place, id=place_id)
+    if request.method == 'POST':
+        place.delete()
+        return redirect('dashboard_places')
+    return render(request, 'dashboard/place_delete.html', {'place': place})
 
 
 @staff_member_required

@@ -3,8 +3,8 @@ import json
 from channels.db import database_sync_to_async
 from channels.generic.websocket import AsyncWebsocketConsumer
 
-from .models import ChatThread, ChatMessage
 from apps.notifications.services import send_email_notification, send_push_notification
+from .models import ChatMessage, ChatThread
 
 
 class ChatConsumer(AsyncWebsocketConsumer):
@@ -63,15 +63,18 @@ class ChatConsumer(AsyncWebsocketConsumer):
     def save_message(self, text):
         thread = ChatThread.objects.get(id=self.thread_id)
 
+        changed_fields = ['updated_at']
         if self.user.is_staff and thread.assigned_admin is None:
             thread.assigned_admin = self.user
-            thread.save(update_fields=['assigned_admin', 'updated_at'])
+            changed_fields.append('assigned_admin')
 
         message = ChatMessage.objects.create(
             thread=thread,
             sender=self.user,
             text=text
         )
+
+        thread.save(update_fields=changed_fields)
 
         return {
             'id': message.id,
@@ -104,13 +107,12 @@ class ChatConsumer(AsyncWebsocketConsumer):
             recipient,
             subject='Новое сообщение в чате — Ариадна',
             message=f'У вас новое сообщение:\n\n{message["text"]}',
-            category='chat'
+            category='chat',
         )
-
         send_push_notification(
             recipient,
             title='Новое сообщение',
             body=message['text'][:120],
             url=f'/chat/{self.thread_id}/',
-            category='chat'
+            category='chat',
         )

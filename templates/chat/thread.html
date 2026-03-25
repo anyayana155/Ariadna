@@ -35,6 +35,8 @@
 <script>
     const CHAT_THREAD_ID = "{{ thread.id }}";
     const CURRENT_USER_ID = "{{ request.user.id }}";
+    const VAPID_PUBLIC_KEY = "{{ vapid_public_key|escapejs }}";
 </script>
 <script src="/static/js/chat.js"></script>
+<script src="/static/js/push.js"></script>
 {% endblock %}

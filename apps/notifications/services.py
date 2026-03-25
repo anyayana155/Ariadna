@@ -2,7 +2,7 @@ import json
 
 from django.conf import settings
 from django.core.mail import send_mail
-from pywebpush import webpush, WebPushException
+from pywebpush import WebPushException, webpush
 
 
 def send_email_notification(user, subject, message, category):
@@ -41,6 +41,9 @@ def send_push_notification(user, title, body, url, category):
     if category == 'system' and not prefs.push_system:
         return
 
+    if not settings.VAPID_PRIVATE_KEY:
+        return
+
     subscriptions = user.push_subscriptions.filter(is_active=True)
 
     payload = json.dumps({
@@ -60,7 +63,7 @@ def send_push_notification(user, title, body, url, category):
                     },
                 },
                 data=payload,
-                vapid_private_key=settings.VAPID_PRIVATE_KEY,
+                vapid_private_key=str(settings.VAPID_PRIVATE_KEY),
                 vapid_claims={
                     'sub': f'mailto:{settings.DEFAULT_FROM_EMAIL}'
                 }
@@ -68,3 +71,4 @@ def send_push_notification(user, title, body, url, category):
         except WebPushException:
             subscription.is_active = False
             subscription.save(update_fields=['is_active'])
+            

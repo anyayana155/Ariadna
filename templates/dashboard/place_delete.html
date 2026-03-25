@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+
+{% block title %}Удалить место{% endblock %}
+
+{% block content %}
+<section class="form-page">
+    <div class="form-card">
+        <h1>Удалить место</h1>
+        <p>Ты действительно хочешь удалить место <strong>{{ place.title }}</strong>?</p>
+
+        <form method="post">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-primary">Удалить</button>
+            <a href="{% url 'dashboard_places' %}" class="btn btn-secondary">Отмена</a>
+        </form>
+    </div>
+</section>
+{% endblock %}
