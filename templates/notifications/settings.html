@@ -13,17 +13,6 @@
             {{ form.as_p }}
             <button type="submit" class="btn btn-primary">Сохранить</button>
         </form>
-
-        <div style="margin-top: 20px;">
-            <button type="button" class="btn btn-secondary" id="enable-push-btn">
-                Включить push-уведомления на этом устройстве
-            </button>
-        </div>
     </div>
 </section>
-
-<script>
-    const VAPID_PUBLIC_KEY = "{{ vapid_public_key|escapejs }}";
-</script>
-<script src="/static/js/push.js"></script>
 {% endblock %}

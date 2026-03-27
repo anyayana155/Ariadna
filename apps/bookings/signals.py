@@ -2,7 +2,7 @@ from django.contrib.auth import get_user_model
 from django.db.models.signals import post_save, pre_save
 from django.dispatch import receiver
 
-from apps.notifications.services import send_email_notification, send_push_notification
+from apps.notifications.services import send_email_notification
 from .models import BookingRequest
 
 
@@ -41,13 +41,6 @@ def notify_booking_events(sender, instance, created, **kwargs):
                 message=message,
                 category='booking',
             )
-            send_push_notification(
-                admin,
-                title='Новая заявка',
-                body=f'{instance.place.title} — {instance.user.email}',
-                url=f'/dashboard/bookings/{instance.id}/',
-                category='booking',
-            )
         return
 
     old_status = getattr(instance, '_old_status', None)
@@ -73,12 +66,5 @@ def notify_booking_events(sender, instance, created, **kwargs):
         instance.user,
         subject='Обновление заявки — Ариадна',
         message=message,
-        category='booking',
-    )
-    send_push_notification(
-        instance.user,
-        title='Обновление заявки',
-        body=f'{instance.place.title}: {status_label}',
-        url=f'/bookings/{instance.id}/',
         category='booking',
     )

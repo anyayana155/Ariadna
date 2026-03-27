@@ -3,8 +3,9 @@ import threading
 
 from channels.db import database_sync_to_async
 from channels.generic.websocket import AsyncWebsocketConsumer
+from django.contrib.auth import get_user_model
 
-from apps.notifications.services import send_email_notification, send_push_notification
+from apps.notifications.services import send_email_notification
 from .models import ChatMessage, ChatThread
 
 
@@ -38,7 +39,6 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
         message = await self.save_message(text)
 
-        # realtime
         await self.channel_layer.group_send(
             self.room_group_name,
             {
@@ -47,7 +47,6 @@ class ChatConsumer(AsyncWebsocketConsumer):
             }
         )
 
-        # уведомления в фоне (НЕ блокируют сокет)
         threading.Thread(
             target=self.notify_other_side_sync,
             args=(message,),
@@ -96,8 +95,9 @@ class ChatConsumer(AsyncWebsocketConsumer):
         else:
             recipient = thread.assigned_admin
             if recipient is None:
+                User = get_user_model()
                 recipient = (
-                    type(self.user).objects
+                    User.objects
                     .filter(is_staff=True, is_active=True)
                     .order_by('id')
                     .first()
@@ -111,14 +111,6 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 recipient,
                 subject='Новое сообщение в чате — Ариадна',
                 message=f'У вас новое сообщение:\n\n{message["text"]}',
-                category='chat',
-            )
-
-            send_push_notification(
-                recipient,
-                title='Новое сообщение',
-                body=message['text'][:120],
-                url=f'/chat/{self.thread_id}/',
                 category='chat',
             )
         except Exception as e:
