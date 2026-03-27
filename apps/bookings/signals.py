@@ -1,3 +1,4 @@
+from django.contrib.auth import get_user_model
 from django.db.models.signals import post_save, pre_save
 from django.dispatch import receiver
 
@@ -21,7 +22,9 @@ def store_old_booking_status(sender, instance, **kwargs):
 @receiver(post_save, sender=BookingRequest)
 def notify_booking_events(sender, instance, created, **kwargs):
     if created:
-        admins = type(instance.user).objects.filter(is_staff=True, is_active=True)
+        User = get_user_model()
+        admins = User.objects.filter(is_staff=True, is_active=True)
+
         message = (
             f'Новая заявка #{instance.id}\n\n'
             f'Пользователь: {instance.user.email}\n'

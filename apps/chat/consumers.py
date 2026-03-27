@@ -1,4 +1,5 @@
 import json
+import threading
 
 from channels.db import database_sync_to_async
 from channels.generic.websocket import AsyncWebsocketConsumer
@@ -37,6 +38,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
         message = await self.save_message(text)
 
+        # realtime
         await self.channel_layer.group_send(
             self.room_group_name,
             {
@@ -45,7 +47,12 @@ class ChatConsumer(AsyncWebsocketConsumer):
             }
         )
 
-        await self.notify_other_side(message)
+        # уведомления в фоне (НЕ блокируют сокет)
+        threading.Thread(
+            target=self.notify_other_side_sync,
+            args=(message,),
+            daemon=True
+        ).start()
 
     async def chat_message(self, event):
         await self.send(text_data=json.dumps(event['message']))
@@ -63,18 +70,15 @@ class ChatConsumer(AsyncWebsocketConsumer):
     def save_message(self, text):
         thread = ChatThread.objects.get(id=self.thread_id)
 
-        changed_fields = ['updated_at']
         if self.user.is_staff and thread.assigned_admin is None:
             thread.assigned_admin = self.user
-            changed_fields.append('assigned_admin')
+            thread.save(update_fields=['assigned_admin'])
 
         message = ChatMessage.objects.create(
             thread=thread,
             sender=self.user,
             text=text
         )
-
-        thread.save(update_fields=changed_fields)
 
         return {
             'id': message.id,
@@ -84,8 +88,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
             'created_at': message.created_at.strftime('%d.%m.%Y %H:%M'),
         }
 
-    @database_sync_to_async
-    def notify_other_side(self, message):
+    def notify_other_side_sync(self, message):
         thread = ChatThread.objects.get(id=self.thread_id)
 
         if self.user.is_staff:
@@ -103,16 +106,20 @@ class ChatConsumer(AsyncWebsocketConsumer):
         if not recipient:
             return
 
-        send_email_notification(
-            recipient,
-            subject='Новое сообщение в чате — Ариадна',
-            message=f'У вас новое сообщение:\n\n{message["text"]}',
-            category='chat',
-        )
-        send_push_notification(
-            recipient,
-            title='Новое сообщение',
-            body=message['text'][:120],
-            url=f'/chat/{self.thread_id}/',
-            category='chat',
-        )
+        try:
+            send_email_notification(
+                recipient,
+                subject='Новое сообщение в чате — Ариадна',
+                message=f'У вас новое сообщение:\n\n{message["text"]}',
+                category='chat',
+            )
+
+            send_push_notification(
+                recipient,
+                title='Новое сообщение',
+                body=message['text'][:120],
+                url=f'/chat/{self.thread_id}/',
+                category='chat',
+            )
+        except Exception as e:
+            print('NOTIFICATION ERROR:', e)

@@ -1,7 +1,8 @@
 from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
-from django.urls import include, path
+from django.urls import include, path, re_path
+from django.views.static import serve
 
 
 urlpatterns = [
@@ -16,6 +17,15 @@ urlpatterns = [
     path('notifications/', include('apps.notifications.urls')),
     path('favorites/', include('apps.favorites.urls')),
     path('bookings/', include('apps.bookings.urls')),
+
+    re_path(
+        r'^service-worker\.js$',
+        serve,
+        {
+            'path': 'service-worker.js',
+            'document_root': settings.STATIC_ROOT,
+        },
+    ),
 ]
 
 if settings.DEBUG:

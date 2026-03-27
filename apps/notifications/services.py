@@ -20,13 +20,17 @@ def send_email_notification(user, subject, message, category):
     if not user.email:
         return
 
-    send_mail(
-        subject=subject,
-        message=message,
-        from_email=settings.DEFAULT_FROM_EMAIL,
-        recipient_list=[user.email],
-        fail_silently=True,
-    )
+    try:
+        result = send_mail(
+            subject=subject,
+            message=message,
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            recipient_list=[user.email],
+            fail_silently=False,
+        )
+        print('EMAIL SENT RESULT:', result)
+    except Exception as e:
+        print('EMAIL ERROR:', e)
 
 
 def send_push_notification(user, title, body, url, category):
@@ -41,7 +45,8 @@ def send_push_notification(user, title, body, url, category):
     if category == 'system' and not prefs.push_system:
         return
 
-    if not settings.VAPID_PRIVATE_KEY:
+    if not getattr(settings, 'VAPID_PRIVATE_KEY', None):
+        print('PUSH ERROR: no VAPID_PRIVATE_KEY')
         return
 
     subscriptions = user.push_subscriptions.filter(is_active=True)
@@ -68,7 +73,9 @@ def send_push_notification(user, title, body, url, category):
                     'sub': f'mailto:{settings.DEFAULT_FROM_EMAIL}'
                 }
             )
-        except WebPushException:
+            print('PUSH SENT')
+
+        except WebPushException as e:
+            print('PUSH ERROR:', e)
             subscription.is_active = False
             subscription.save(update_fields=['is_active'])
-            

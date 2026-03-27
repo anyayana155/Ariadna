@@ -20,6 +20,29 @@ function getCookie(name) {
     return cookieValue;
 }
 
+function waitForActiveServiceWorker(registration) {
+    return new Promise((resolve, reject) => {
+        if (registration.active) {
+            resolve(registration);
+            return;
+        }
+
+        const worker = registration.installing || registration.waiting;
+        if (!worker) {
+            resolve(registration);
+            return;
+        }
+
+        worker.addEventListener('statechange', () => {
+            if (worker.state === 'activated') {
+                resolve(registration);
+            }
+        });
+
+        setTimeout(() => reject(new Error('Service Worker activation timeout')), 10000);
+    });
+}
+
 async function enablePush() {
     if (!('serviceWorker' in navigator)) {
         throw new Error('Service Worker не поддерживается');
@@ -33,33 +56,64 @@ async function enablePush() {
         throw new Error('Некорректный VAPID public key');
     }
 
-    console.log('VAPID_PUBLIC_KEY:', VAPID_PUBLIC_KEY);
-    console.log('VAPID_PUBLIC_KEY length:', VAPID_PUBLIC_KEY.length);
+    console.log('User agent:', navigator.userAgent);
+    console.log('Notification.permission before request:', Notification.permission);
 
-    const permission = await Notification.requestPermission();
+    let permission = Notification.permission;
+    if (permission === 'default') {
+        permission = await Notification.requestPermission();
+    }
+
     console.log('Notification permission:', permission);
 
     if (permission !== 'granted') {
         throw new Error('Разрешение на уведомления не выдано');
     }
 
-    const registration = await navigator.serviceWorker.register('/static/service-worker.js');
+    const registration = await navigator.serviceWorker.register('/service-worker.js', {
+        scope: '/',
+        updateViaCache: 'none',
+    });
+
+    await waitForActiveServiceWorker(registration);
+    await navigator.serviceWorker.ready;
+
     console.log('Service worker registered:', registration);
+
+    const applicationServerKey = urlBase64ToUint8Array(VAPID_PUBLIC_KEY);
+    console.log('applicationServerKey length:', applicationServerKey.length);
 
     let subscription = await registration.pushManager.getSubscription();
     console.log('Existing subscription:', subscription);
 
-    if (!subscription) {
-        const applicationServerKey = urlBase64ToUint8Array(VAPID_PUBLIC_KEY);
-        console.log('applicationServerKey length:', applicationServerKey.length);
-
-        subscription = await registration.pushManager.subscribe({
-            userVisibleOnly: true,
-            applicationServerKey: applicationServerKey,
-        });
-
-        console.log('New subscription created:', subscription);
+    if (subscription) {
+        try {
+            await subscription.unsubscribe();
+            console.log('Old subscription removed');
+        } catch (e) {
+            console.warn('Failed to unsubscribe old subscription:', e);
+        }
+        subscription = null;
     }
+
+    try {
+        if (registration.pushManager.permissionState) {
+            const state = await registration.pushManager.permissionState({
+                userVisibleOnly: true,
+                applicationServerKey,
+            });
+            console.log('Push permissionState:', state);
+        }
+    } catch (e) {
+        console.warn('permissionState check failed:', e);
+    }
+
+    subscription = await registration.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey,
+    });
+
+    console.log('New subscription created:', subscription);
 
     const response = await fetch('/notifications/save-subscription/', {
         method: 'POST',
@@ -91,6 +145,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 alert('Push-уведомления включены для этого устройства.');
             } catch (error) {
                 console.error('Push enable error:', error);
+                console.error('Push enable error name:', error?.name);
+                console.error('Push enable error message:', error?.message);
                 alert(`Не удалось включить push-уведомления: ${error.message}`);
             }
         });
