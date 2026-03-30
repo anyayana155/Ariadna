@@ -10,8 +10,13 @@ class NotificationPreference(models.Model):
     )
 
     email_chat = models.BooleanField(default=True)
+    push_chat = models.BooleanField(default=False)
+
     email_booking = models.BooleanField(default=True)
+    push_booking = models.BooleanField(default=False)
+
     email_system = models.BooleanField(default=True)
+    push_system = models.BooleanField(default=False)
 
     def __str__(self):
         return f'Notification preferences for {self.user.email}'

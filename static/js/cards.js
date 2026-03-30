@@ -76,16 +76,18 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    function setFullDescription(text) {
+    function setFullDescription(html) {
         if (!fullDescEl || !toggleDescBtn) return;
 
-        if (text && text.trim()) {
-            fullDescEl.textContent = text;
+        const cleanHtml = (html || '').trim();
+
+        if (cleanHtml) {
+            fullDescEl.innerHTML = cleanHtml;
             fullDescEl.classList.add('hidden');
             toggleDescBtn.classList.remove('hidden');
             toggleDescBtn.textContent = 'Развернуть описание';
         } else {
-            fullDescEl.textContent = '';
+            fullDescEl.innerHTML = '';
             fullDescEl.classList.add('hidden');
             toggleDescBtn.classList.add('hidden');
         }
@@ -142,7 +144,6 @@ document.addEventListener('DOMContentLoaded', () => {
         card.style.transform = '';
     }
 
-    // Кнопки действий
     document.querySelectorAll('[data-action]').forEach(button => {
         button.addEventListener('click', (e) => {
             e.preventDefault();
@@ -160,7 +161,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // Галерея
     if (prevImageBtn) {
         prevImageBtn.addEventListener('click', (e) => {
             e.preventDefault();
@@ -216,7 +216,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Свайп всей карточки, но не при клике по интерактивным элементам
     let startX = 0;
     let currentX = 0;
     let isDragging = false;
@@ -260,5 +259,5 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     refreshGalleryElements();
-    setFullDescription(fullDescEl ? fullDescEl.textContent : '');
+    setFullDescription(fullDescEl ? fullDescEl.innerHTML : '');
 });
